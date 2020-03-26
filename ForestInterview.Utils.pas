@@ -2,12 +2,19 @@ unit ForestInterview.Utils;
 
 interface
 
-uses System.IOUtils;
+uses System.IOUtils,
+  Androidapi.JNIBridge, // ILocalObject
+  Androidapi.JNI.App, // TJActivity
+  Androidapi.JNI.Os, // JVibrator
+  Androidapi.JNI.JavaTypes, // JObject
+  FMX.Helpers.Android,
+  Androidapi.Helpers; // SharedActivity;
 
 type
   TUtils = class
     class function Diretorio: string;
     class function DirArquivo(pArquivo: string): string;
+    class procedure Vibrar(pTempo: cardinal); static;
   end;
 
 implementation
@@ -28,6 +35,17 @@ begin
   {$IFDEF WIN32}
     result :=  TPath.GetLibraryPath() + TPath.DirectorySeparatorChar;
   {$ENDIF WIN32}
+end;
+
+
+class procedure TUtils.Vibrar(pTempo: cardinal);
+var
+  VibratorObj: JObject;
+  Vibrator: JVibrator;
+begin
+  VibratorObj := SharedActivity.getSystemService(TJActivity.JavaClass.VIBRATOR_SERVICE);
+  Vibrator    := TJVibrator.Wrap((VibratorObj as ILocalObject).GetObjectID);
+  Vibrator.vibrate(pTempo); //1000 milesegundo
 end;
 
 end.

@@ -12,6 +12,7 @@ type
     FFormControle: TForm;
     FLayoutControle: TLayout;
     FVerticalScrollControle: TVertScrollBox;
+    FTecladoVisivel: boolean;
     procedure UpdateKBBounds;
     procedure RestorePosition;
     procedure CalcContentBoundsProc(Sender: TObject; var ContentBounds: TRectF);
@@ -21,6 +22,7 @@ type
     procedure FormFocusChanged(Sender: TObject);
     procedure SetVerticalScrollControle(const Value: TVertScrollBox);
   public
+    property TecladoVisivel: boolean read FTecladoVisivel write FTecladoVisivel;
     property FormControle: TForm read FFormControle write SetFormControle;
     property LayoutControle: TLayout read FLayoutControle write FLayoutControle;
     property VerticalScrollControle: TVertScrollBox read FVerticalScrollControle write SetVerticalScrollControle;
@@ -88,6 +90,7 @@ begin
   FKBBounds.Create(0, 0, 0, 0);
   FNeedOffset := False;
   RestorePosition;
+  TecladoVisivel := False;
 end;
 
 procedure TControleTeclado.FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
@@ -96,6 +99,7 @@ begin
   FKBBounds.TopLeft := FormControle.ScreenToClient(FKBBounds.TopLeft);
   FKBBounds.BottomRight := FormControle.ScreenToClient(FKBBounds.BottomRight);
   UpdateKBBounds;
+  TecladoVisivel := True;
 end;
 
 constructor TControleTeclado.Create(AOwner: TComponent);

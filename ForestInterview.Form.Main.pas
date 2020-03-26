@@ -7,7 +7,9 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.TabControl, FMX.StdCtrls, FMX.Controls.Presentation,
   FMX.Gestures, System.Actions, FMX.ActnList, FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base, FMX.ListView, ForestInterview.Module.Main, System.Rtti, System.Bindings.Outputs,
   Fmx.Bind.Editors, Data.Bind.EngExt, Fmx.Bind.DBEngExt, Data.Bind.Components, Data.Bind.DBScope, FMX.Layouts, FMX.DateTimeCtrls, FMX.Edit, FMX.Objects, System.ImageList, FMX.ImgList,
-  FMX.StdActns, ForestInterview.Form.Parcela, ForestInterview.Form.Cubagem, ForestInterview.Helper.VertScrollBox, FMX.Colors;
+  FMX.StdActns, ForestInterview.Form.Parcela, ForestInterview.Form.Cubagem, ForestInterview.Helper.VertScrollBox, FMX.Colors, FMX.ListBox, System.Math.Vectors, FMX.Controls3D, FMX.Layers3D,
+  FMX.Styles.Objects, Generics.collections, ForestInterview.Classe.DadosReg, ForestInterview.ControleTeclado,
+  ForestInterview.Utils;
 
 type
   TFormMain = class(TForm)
@@ -17,10 +19,8 @@ type
     TabCadColeta: TTabItem;
     GestureManager1: TGestureManager;
     ActionList1: TActionList;
-    ListView1: TListView;
     BindColetaCad: TBindSourceDB;
     BindingsList1: TBindingsList;
-    LinkListControlToField1: TLinkListControlToField;
     BindColetaList: TBindSourceDB;
     LayoutMain: TLayout;
     edtEquipe: TEdit;
@@ -108,18 +108,34 @@ type
     Rectangle3: TRectangle;
     imgSave: TImage;
     imgCancel: TImage;
-    btnParcela: TSpeedButton;
-    btnCubagem: TSpeedButton;
+    ListBox1: TListBox;
+    StyleBook1: TStyleBook;
+    ListBoxItem1: TListBoxItem;
+    Layout3D1: TLayout3D;
+    StyleTextObject1: TStyleTextObject;
+    imgDelete: TImage;
+    imgParcela: TImage;
+    imgCubagem: TImage;
+    Image1: TImage;
     procedure FormCreate(Sender: TObject);
-    procedure ListView1ItemClick(const Sender: TObject; const AItem: TListViewItem);
-    procedure btnParcelaClick(Sender: TObject);
-    procedure btnCubagemClick(Sender: TObject);
     procedure ImgIncColetaClick(Sender: TObject);
     procedure imgSaveClick(Sender: TObject);
     procedure imgCancelClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure layoutimgBtnClick(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+    procedure imgParcelaClick(Sender: TObject);
+    procedure imgCubagemClick(Sender: TObject);
   private
+    FDicReg : TDicReg;
+    FControleTeclado: TControleTeclado;
+    procedure onEditListaClick(Sender: TObject);
+    procedure SelecionarItem(pListBoxItem : TListBoxItem);
     procedure rgdSave(pRdg: TRadioButton; pFieldName, pValue: string);
     procedure rgdEdit(pRdg: TRadioButton; pFieldName, pValue: string);
+    procedure MontarListBox;
+    procedure LimparListBox;
+    procedure ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     { Private declarations }
   public
     { Public declarations }
@@ -132,18 +148,47 @@ implementation
 
 {$R *.fmx}
 
-uses ForestInterview.ControleTeclado;
-
 procedure TFormMain.FormCreate(Sender: TObject);
-var
-  lControleTeclado: TControleTeclado;
 begin
-  lControleTeclado := TControleTeclado.Create(self);
-  lControleTeclado.FormControle := Self;
-  lControleTeclado.LayoutControle := LayoutMain;
-  lControleTeclado.VerticalScrollControle := VerticalScroll;
+  FControleTeclado := TControleTeclado.Create(self);
+  FControleTeclado.FormControle := Self;
+  FControleTeclado.LayoutControle := LayoutMain;
+  FControleTeclado.VerticalScrollControle := VerticalScroll;
 
   tbcColeta.ActiveTab := TabListaColeta;
+  FDicReg := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
+  imgDelete.Visible := False;
+end;
+
+procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+begin
+  if Key = vkHardwareBack then
+  begin
+    if (tbcColeta.ActiveTab = TabCadColeta) and not (FControleTeclado.TecladoVisivel) then
+    begin
+      tbcColeta.Previous;
+      Key := 0;
+    end;
+  end;
+end;
+
+procedure TFormMain.FormShow(Sender: TObject);
+begin
+  LimparListBox;
+  MontarListBox;
+end;
+
+procedure TFormMain.imgParcelaClick(Sender: TObject);
+begin
+  ModuleMain.ListarParcela;
+  TFormParcela.Create(Application).Show;
+end;
+
+procedure TFormMain.ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+begin
+  case EventInfo.GestureID of
+    igiLongTap : SelecionarItem(TListBoxItem(Sender));
+  end;
 end;
 
 procedure TFormMain.imgSaveClick(Sender: TObject);
@@ -154,13 +199,26 @@ begin
   rgdSave(rdgCubDap,'COL_CUBAGEM_TIPO','C');
 
   ModuleMain.SalvarColeta;
+  LimparListBox;
+  MontarListBox;
   tbcColeta.ActiveTab := TabListaColeta;
+end;
+
+procedure TFormMain.layoutimgBtnClick(Sender: TObject);
+begin
+  ShowMessage('Teste');
 end;
 
 procedure TFormMain.imgCancelClick(Sender: TObject);
 begin
   ModuleMain.CancelarColeta;
-  tbcColeta.ActiveTab := TabListaColeta;
+  tbcColeta.Previous;
+end;
+
+procedure TFormMain.imgCubagemClick(Sender: TObject);
+begin
+  ModuleMain.ListarCubagem;
+  TformCubagem.Create(Application).Show;
 end;
 
 procedure TFormMain.ImgIncColetaClick(Sender: TObject);
@@ -175,11 +233,18 @@ begin
   tbcColeta.ActiveTab := TabCadColeta;
 end;
 
-procedure TFormMain.ListView1ItemClick(const Sender: TObject; const AItem: TListViewItem);
+procedure TFormMain.onEditListaClick(Sender: TObject);
+var
+  lListBoxItem : TListBoxItem;
 begin
-  if ModuleMain.EditarColeta then
+  if Sender is TListBoxItem then
+    lListBoxItem := TListBoxItem(Sender)
+  else
+    lListBoxItem := TListBoxItem(TComponent(Sender).Tag);
+
+  if ModuleMain.EditarColeta(FDicReg.Items[lListBoxItem].ID) then
   begin
-    tbcColeta.ActiveTab := TabCadColeta;
+    tbcColeta.Next;
 
     rgdEdit(rdgParcDap,'COL_PARCELA_TIPO','D');
     rgdEdit(rdgParcCap,'COL_PARCELA_TIPO','C');
@@ -187,6 +252,23 @@ begin
     rgdEdit(rdgCubDap,'COL_CUBAGEM_TIPO','C');
   end;
 end;
+
+procedure TFormMain.SelecionarItem(pListBoxItem : TListBoxItem);
+begin
+  if not FDicReg.Items[pListBoxItem].Check then
+  begin
+    pListBoxItem.StylesData['stlColor.Fill.Color'] := TValue.From<TAlphaColor>(TAlphaColorRec.Papayawhip);
+    pListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(True);
+    FDicReg.Items[pListBoxItem].Check := True;
+  end else begin
+    pListBoxItem.StylesData['stlColor.Fill.Color'] := TValue.From<TAlphaColor>(TAlphaColorRec.White);
+    pListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
+    FDicReg.Items[pListBoxItem].Check := False;
+  end;
+  TUtils.Vibrar(50);
+  imgDelete.Visible := FDicReg.CountCheck > 0;
+end;
+
 
 procedure TFormMain.rgdSave(pRdg: TRadioButton; pFieldName, pValue: string);
 begin
@@ -203,16 +285,44 @@ begin
     pRdg.IsChecked := True;
 end;
 
-procedure TFormMain.btnCubagemClick(Sender: TObject);
+procedure TFormMain.MontarListBox;
+var
+  lListBoxItem: TListBoxItem;
+  lDadosReg: TDadosReg;
 begin
-  ModuleMain.ListarCubagem;
-  TformCubagem.Create(Application).Show;
+  ListBox1.BeginUpdate;
+  ModuleMain.qryColetasList.First;
+  while not ModuleMain.qryColetasList.Eof do
+  begin
+    lListBoxItem := TListBoxItem.Create(ListBox1);
+    lListBoxItem.Touch.InteractiveGestures := [TInteractiveGesture.LongTap];
+    lListBoxItem.OnGesture := ListBoxItemGesture;
+    
+    lListBoxItem.Visible := True;
+    lListBoxItem.Enabled := True;
+    lListBoxItem.Height := 54;
+    lListBoxItem.StyleLookup := 'ListBox1Style1';
+    lListBoxItem.StylesData['stlEdit.Onclick'] := TValue.From<TNotifyEvent>(onEditListaClick);
+    lListBoxItem.StylesData['stlEdit.Tag'] := Integer(lListBoxItem);
+
+    lListBoxItem.StylesData['stlFazenda'] := ModuleMain.qryColetasList.FieldByName('COL_FAZENDA').AsString;
+    lListBoxItem.StylesData['stlEquipe']  := ModuleMain.qryColetasList.FieldByName('COL_EQUIPE').AsString;
+    lListBoxItem.StylesData['stlTalhao']  := ModuleMain.qryColetasList.FieldByName('COL_TALHAO').AsString;
+    lListBoxItem.StylesData['stlData']    := formatDateTime('dd/mm/yyyy', ModuleMain.qryColetasList.FieldByName('COL_DATA').AsDateTime);
+    lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
+
+    ListBox1.AddObject(lListBoxItem);
+
+    FDicReg.New(lListBoxItem, ModuleMain.qryColetasList.FieldByName('COL_ID').AsInteger);
+    ModuleMain.qryColetasList.Next;
+  end;
+  ListBox1.EndUpdate;
 end;
 
-procedure TFormMain.btnParcelaClick(Sender: TObject);
+procedure TFormMain.LimparListBox;
 begin
-  ModuleMain.ListarParcela;
-  TFormParcela.Create(Application).Show;
+  FDicReg.Clear;
+  ListBox1.Clear;
 end;
 
 end.

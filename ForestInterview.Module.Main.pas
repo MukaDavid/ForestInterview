@@ -109,13 +109,13 @@ type
   public
     { Public declarations }
     procedure IncluirColeta;
-    function EditarColeta: boolean;
+    function EditarColeta(pID: Integer): boolean;
     procedure CancelarColeta;
     procedure SalvarColeta;
     procedure ExcluirColeta(pID: Integer);
 
     procedure IncluirParcela;
-    function EditarParcela: boolean;
+    function EditarParcela(pID: Integer): boolean;
     procedure ListarParcela;
     procedure CancelarParcela;
     procedure SalvarParcela;
@@ -332,13 +332,13 @@ begin
   qryParcelaList.Open;
 end;
 
-function TModuleMain.EditarColeta: boolean;
+function TModuleMain.EditarColeta(pID: Integer): boolean;
 begin
   result := false;
   if not qryColetasList.IsEmpty then
   begin
     qryColetasCad.Close;
-    qryColetasCad.ParamByName('COL_ID').AsInteger := qryColetasList.FieldByName('COL_ID').AsInteger;
+    qryColetasCad.ParamByName('COL_ID').AsInteger := pID;
     qryColetasCad.Open;
     qryColetasCad.Edit;
     result := True;
@@ -346,13 +346,13 @@ begin
 end;
 
 
-function TModuleMain.EditarParcela: boolean;
+function TModuleMain.EditarParcela(pID: Integer): boolean;
 begin
   result := false;
   if not qryParcelaList.IsEmpty then
   begin
     qryParcelaCad.Close;
-    qryParcelaCad.ParamByName('PAR_ID').AsInteger := qryParcelaList.FieldByName('PAR_ID').AsInteger;
+    qryParcelaCad.ParamByName('PAR_ID').AsInteger := pID;
     qryParcelaCad.Open;
     qryParcelaCad.Edit;
     result := True;

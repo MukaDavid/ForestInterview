@@ -138,6 +138,7 @@
     <PropertyGroup Condition="'$(Cfg_1_Android)'!=''">
         <VerInfo_Build>1</VerInfo_Build>
         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+        <AUP_VIBRATE>true</AUP_VIBRATE>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -179,6 +180,7 @@
         </DCCReference>
         <DCCReference Include="ForestInterview.Helper.VertScrollBox.pas"/>
         <DCCReference Include="ForestInterview.ControleTeclado.pas"/>
+        <DCCReference Include="ForestInterview.Classe.DadosReg.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

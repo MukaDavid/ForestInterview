@@ -9,7 +9,8 @@ uses
   ForestInterview.Form.Cubagem in 'ForestInterview.Form.Cubagem.pas' {formCubagem},
   ForestInterview.Form.Parcela in 'ForestInterview.Form.Parcela.pas' {FormParcela},
   ForestInterview.Helper.VertScrollBox in 'ForestInterview.Helper.VertScrollBox.pas',
-  ForestInterview.ControleTeclado in 'ForestInterview.ControleTeclado.pas';
+  ForestInterview.ControleTeclado in 'ForestInterview.ControleTeclado.pas',
+  ForestInterview.Classe.DadosReg in 'ForestInterview.Classe.DadosReg.pas';
 
 {$R *.res}
 
