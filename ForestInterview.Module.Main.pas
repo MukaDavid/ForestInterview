@@ -14,36 +14,6 @@ type
     qrySequence: TFDQuery;
     qryColetasList: TFDQuery;
     qryColetasCad: TFDQuery;
-    qryColetasListCOL_ID: TIntegerField;
-    qryColetasListCOL_EQUIPE: TStringField;
-    qryColetasListCOL_FAZENDA: TStringField;
-    qryColetasListCOL_TALHAO: TStringField;
-    qryColetasListCOL_DATA: TDateField;
-    qryColetasListCOL_AREA_PARCELA: TFMTBCDField;
-    qryColetasListCOL_AREA_TALHAO: TFMTBCDField;
-    qryColetasListCOL_PARCELA_TIPO: TStringField;
-    qryColetasListCOL_CUBAGEM_TIPO: TStringField;
-    qryColetasListCOL_FATOR_FORMA: TFMTBCDField;
-    qryColetasListCOL_LIM_CAPDAP_MIN: TFMTBCDField;
-    qryColetasListCOL_LIM_CAPDAP_MAX: TFMTBCDField;
-    qryColetasListCOL_LIM_ALT_MIN: TFMTBCDField;
-    qryColetasListCOL_LIM_ALT_MAX: TFMTBCDField;
-    qryColetasListCOL_ERRO_AMOSTRAL: TFMTBCDField;
-    qryColetasCadCOL_ID: TIntegerField;
-    qryColetasCadCOL_EQUIPE: TStringField;
-    qryColetasCadCOL_FAZENDA: TStringField;
-    qryColetasCadCOL_TALHAO: TStringField;
-    qryColetasCadCOL_DATA: TDateField;
-    qryColetasCadCOL_AREA_PARCELA: TFMTBCDField;
-    qryColetasCadCOL_AREA_TALHAO: TFMTBCDField;
-    qryColetasCadCOL_PARCELA_TIPO: TStringField;
-    qryColetasCadCOL_CUBAGEM_TIPO: TStringField;
-    qryColetasCadCOL_FATOR_FORMA: TFMTBCDField;
-    qryColetasCadCOL_LIM_CAPDAP_MIN: TFMTBCDField;
-    qryColetasCadCOL_LIM_CAPDAP_MAX: TFMTBCDField;
-    qryColetasCadCOL_LIM_ALT_MIN: TFMTBCDField;
-    qryColetasCadCOL_LIM_ALT_MAX: TFMTBCDField;
-    qryColetasCadCOL_ERRO_AMOSTRAL: TFMTBCDField;
     qryParcelaList: TFDQuery;
     qryParcelaCad: TFDQuery;
     qryCubagemList: TFDQuery;
@@ -70,24 +40,30 @@ type
     qryCubMedidasCadMED_ALTURA: TFMTBCDField;
     qryCubMedidasCadMED_TRONCO: TFMTBCDField;
     qryCubMedidasCadMED_CASCA: TFMTBCDField;
-    qryParcelaListPAR_ID: TIntegerField;
-    qryParcelaListCOL_ID: TIntegerField;
-    qryParcelaListPAR_X: TFMTBCDField;
-    qryParcelaListPAR_Y: TFMTBCDField;
-    qryParcelaListPAR_FILA: TIntegerField;
-    qryParcelaListPAR_COVA: TIntegerField;
-    qryParcelaListPAR_TRONCO: TFMTBCDField;
-    qryParcelaListPAR_ALTURA: TFMTBCDField;
-    qryParcelaListPAR_SANIDADE: TStringField;
-    qryParcelaListPAR_BIFURCACAO: TStringField;
-    qryParcelaListPAR_PONTA: TStringField;
-    qryParcelaListPAR_SINUOSIDADE: TStringField;
-    qryParcelaListPAR_OUTROS: TStringField;
-    qryParcelaListPAR_VOLUME: TFMTBCDField;
+    qrySequenceUpdate: TFDQuery;
+    qrySequenceInsert: TFDQuery;
+    ImageList1: TImageList;
+    qryColetasCadCOL_ID: TIntegerField;
+    qryColetasCadCOL_EQUIPE: TStringField;
+    qryColetasCadCOL_FAZENDA: TStringField;
+    qryColetasCadCOL_TALHAO: TStringField;
+    qryColetasCadCOL_DATA: TDateField;
+    qryColetasCadCOL_AREA_PARCELA: TFMTBCDField;
+    qryColetasCadCOL_AREA_TALHAO: TFMTBCDField;
+    qryColetasCadCOL_PARCELA_TIPO: TStringField;
+    qryColetasCadCOL_CUBAGEM_TIPO: TStringField;
+    qryColetasCadCOL_FATOR_FORMA: TFMTBCDField;
+    qryColetasCadCOL_LIM_CAPDAP_MIN: TFMTBCDField;
+    qryColetasCadCOL_LIM_CAPDAP_MAX: TFMTBCDField;
+    qryColetasCadCOL_LIM_ALT_MIN: TFMTBCDField;
+    qryColetasCadCOL_LIM_ALT_MAX: TFMTBCDField;
+    qryColetasCadCOL_ERRO_AMOSTRAL: TFMTBCDField;
+    qryColetasCadCOL_LONGITUDE: TFMTBCDField;
+    qryColetasCadCOL_LATITUDE: TFMTBCDField;
+    qryColetasCadCOL_PARCELA: TStringField;
     qryParcelaCadPAR_ID: TIntegerField;
     qryParcelaCadCOL_ID: TIntegerField;
-    qryParcelaCadPAR_X: TFMTBCDField;
-    qryParcelaCadPAR_Y: TFMTBCDField;
+    qryParcelaCadPAR_ARVORE: TIntegerField;
     qryParcelaCadPAR_FILA: TIntegerField;
     qryParcelaCadPAR_COVA: TIntegerField;
     qryParcelaCadPAR_TRONCO: TFMTBCDField;
@@ -98,15 +74,18 @@ type
     qryParcelaCadPAR_SINUOSIDADE: TStringField;
     qryParcelaCadPAR_OUTROS: TStringField;
     qryParcelaCadPAR_VOLUME: TFMTBCDField;
-    qrySequenceUpdate: TFDQuery;
-    qrySequenceInsert: TFDQuery;
-    ImageList1: TImageList;
+    qryParcelaCadPAR_OBS: TWideMemoField;
+    qryMaxParArvore: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure FDConnectionBeforeConnect(Sender: TObject);
+    procedure qryColetasCadNewRecord(DataSet: TDataSet);
+    procedure qryParcelaCadNewRecord(DataSet: TDataSet);
   private
+    FColID: integer;
     function NextID(pTableName: String): Integer;
     { Private declarations }
   public
+    property ColID: integer read FColID write FColID;
     { Public declarations }
     procedure IncluirColeta;
     function EditarColeta(pID: Integer): boolean;
@@ -114,12 +93,16 @@ type
     procedure SalvarColeta;
     procedure ExcluirColeta(pID: Integer);
 
-    procedure IncluirParcela;
-    function EditarParcela(pID: Integer): boolean;
-    procedure ListarParcela;
+    procedure IncluirParcela(pColID: Integer);
+    function EditarParcela(pParID: Integer): boolean;
+    procedure ListarParcela(pColID: Integer);
+    function MaxParArvore(pColID: Integer): integer;
     procedure CancelarParcela;
     procedure SalvarParcela;
-
+    function ParcelaBifurcacao: string;
+    function ParcelaPonta: string;
+    function ParcelaSanidade: string;
+    function ParcelaSinuosidade: string;
 
     procedure IncluirCubagem;
     procedure ListarCubagem;
@@ -182,7 +165,10 @@ begin
                              'COL_LIM_CAPDAP_MAX DECIMAL(10,5), '+
                              'COL_LIM_ALT_MIN DECIMAL(10,5), '+
                              'COL_LIM_ALT_MAX DECIMAL(10,5), '+
-                             'COL_ERRO_AMOSTRAL DECIMAL(10,5) '+
+                             'COL_ERRO_AMOSTRAL DECIMAL(10,5), '+
+                             'COL_LONGITUDE DECIMAL(10,5), '+
+                             'COL_LATITUDE DECIMAL(10,5),'+
+                             'COL_PARCELA VARCHAR(50)'+
                              ');';
 
   qryCreateTable.ExecSQL;
@@ -190,8 +176,7 @@ begin
   qryCreateTable.SQL.Text := 'CREATE TABLE IF NOT EXISTS PARCELAS ('+
                              'PAR_ID INT NOT NULL, '+
                              'COL_ID INT NOT NULL, '+
-                             'PAR_X  DECIMAL(10,5), '+
-                             'PAR_Y  DECIMAL(10,5), '+
+                             'PAR_ARVORE INT, '+
                              'PAR_FILA INT, '+
                              'PAR_COVA INT, '+
                              'PAR_TRONCO DECIMAL(10,5), '+
@@ -201,7 +186,8 @@ begin
                              'PAR_PONTA VARCHAR(1), '+
                              'PAR_SINUOSIDADE VARCHAR(1), '+
                              'PAR_OUTROS VARCHAR(1), '+
-                             'PAR_VOLUME DECIMAL(10,5) '+
+                             'PAR_VOLUME DECIMAL(10,5), '+
+                             'PAR_OBS TEXT '+
                              ');';
 
   qryCreateTable.ExecSQL;
@@ -226,8 +212,6 @@ begin
                              ');';
 
   qryCreateTable.ExecSQL;
-
-
 
 
   qryCreateTable.SQL.Text := 'CREATE TABLE IF NOT EXISTS SEQUENCE ('+
@@ -260,11 +244,66 @@ begin
 end;
 
 
+function TModuleMain.ParcelaBifurcacao: string;
+begin
+  if qryParcelaList.FieldByName('PAR_BIFURCACAO').AsString = 'S' then
+    Result := 'Sim'
+  else if qryParcelaList.FieldByName('PAR_BIFURCACAO').AsString = 'N' then
+    Result := 'Não'
+  else
+    Result := '-';
+end;
+
+function TModuleMain.ParcelaPonta: string;
+begin
+  if qryParcelaList.FieldByName('PAR_PONTA').AsString = 'N' then
+    Result := 'Normal'
+  else if qryParcelaList.FieldByName('PAR_PONTA').AsString = 'S' then
+    Result := 'Seca'
+  else if qryParcelaList.FieldByName('PAR_PONTA').AsString = 'Q' then
+    Result := 'Quebrada'
+  else
+    Result := '-';
+end;
+
+function TModuleMain.ParcelaSanidade: string;
+begin
+  if qryParcelaList.FieldByName('PAR_SANIDADE').AsString = 'S' then
+    Result := 'Saudável'
+  else if qryParcelaList.FieldByName('PAR_SANIDADE').AsString = 'M' then
+    Result := 'Morta'
+  else if qryParcelaList.FieldByName('PAR_SANIDADE').AsString = 'F' then
+    Result := 'Falha'
+  else
+    Result := '-';
+end;
+
+function TModuleMain.ParcelaSinuosidade: string;
+begin
+  if qryParcelaList.FieldByName('PAR_SINUOSIDADE').AsString = 'R' then
+    Result := 'Reta'
+  else if qryParcelaList.FieldByName('PAR_SINUOSIDADE').AsString = 'S' then
+    Result := 'Sinuosa'
+  else
+    Result := '-';
+end;
+
+procedure TModuleMain.qryColetasCadNewRecord(DataSet: TDataSet);
+begin
+  qryColetasCad.FieldByName('COL_DATA').AsDateTime := Date;
+end;
+
+procedure TModuleMain.qryParcelaCadNewRecord(DataSet: TDataSet);
+begin
+  qryParcelaCad.FieldByName('PAR_ARVORE').AsInteger := MaxParArvore(FColID) + 1;
+end;
+
 procedure TModuleMain.SalvarColeta;
 begin
   qryColetasCad.Post;
   qryColetasCad.Close;
-  qryColetasList.Refresh;
+  qryColetasList.Close;
+  qryColetasList.Open;
 end;
 
 procedure TModuleMain.SalvarCubagem;
@@ -304,7 +343,7 @@ begin
 
 end;
 
-procedure TModuleMain.IncluirParcela;
+procedure TModuleMain.IncluirParcela(pColID: Integer);
 begin
   var lid := NextID('PARCELAS');
   qryParcelaCad.Close;
@@ -312,7 +351,7 @@ begin
   qryParcelaCad.Open;
   qryParcelaCad.Append;
   qryParcelaCad.FieldByName('PAR_ID').AsInteger := lid;
-  qryParcelaCad.FieldByName('COL_ID').AsInteger := qryColetasList.FieldByName('COL_ID').AsInteger;
+  qryParcelaCad.FieldByName('COL_ID').AsInteger := pColID;
 end;
 
 procedure TModuleMain.ListarCubagem;
@@ -325,16 +364,35 @@ begin
 
 end;
 
-procedure TModuleMain.ListarParcela;
+procedure TModuleMain.ListarParcela(pColID: Integer);
 begin
   qryParcelaList.Close;
-  qryParcelaList.ParamByName('COL_ID').AsInteger := qryColetasList.FieldByName('COL_ID').AsInteger;
+  qryParcelaList.ParamByName('COL_ID').AsInteger := pColID;
   qryParcelaList.Open;
+end;
+
+function TModuleMain.MaxParArvore(pColID: Integer): integer;
+begin
+  result := 0;
+
+  qryMaxParArvore.Close;
+  qryMaxParArvore.ParamByName('COL_ID').AsInteger := pColID;
+  qryMaxParArvore.Open;
+  try
+    if qryMaxParArvore.FieldByName('MAX_PAR_ARVORE').isNull then
+      result := 0
+    else
+      result := qryMaxParArvore.FieldByName('MAX_PAR_ARVORE').AsInteger;
+  finally
+    qryMaxParArvore.Close;
+  end;
+
 end;
 
 function TModuleMain.EditarColeta(pID: Integer): boolean;
 begin
   result := false;
+  FColID := pID;
   if not qryColetasList.IsEmpty then
   begin
     qryColetasCad.Close;
@@ -346,13 +404,13 @@ begin
 end;
 
 
-function TModuleMain.EditarParcela(pID: Integer): boolean;
+function TModuleMain.EditarParcela(pParID: Integer): boolean;
 begin
   result := false;
   if not qryParcelaList.IsEmpty then
   begin
     qryParcelaCad.Close;
-    qryParcelaCad.ParamByName('PAR_ID').AsInteger := pID;
+    qryParcelaCad.ParamByName('PAR_ID').AsInteger := pParID;
     qryParcelaCad.Open;
     qryParcelaCad.Edit;
     result := True;

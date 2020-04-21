@@ -2,13 +2,16 @@ unit ForestInterview.Utils;
 
 interface
 
-uses System.IOUtils,
-  Androidapi.JNIBridge, // ILocalObject
-  Androidapi.JNI.App, // TJActivity
-  Androidapi.JNI.Os, // JVibrator
-  Androidapi.JNI.JavaTypes, // JObject
-  FMX.Helpers.Android,
-  Androidapi.Helpers; // SharedActivity;
+uses System.IOUtils
+  {$IF DEFINED(iOS) or DEFINED(ANDROID)}
+  ,Androidapi.JNIBridge // ILocalObject
+  ,Androidapi.JNI.App // TJActivity
+  ,Androidapi.JNI.Os // JVibrator
+  ,Androidapi.JNI.JavaTypes // JObject
+  ,FMX.Helpers.Android
+  ,Androidapi.Helpers
+  {$ENDIF}
+  ; // SharedActivity;
 
 type
   TUtils = class
@@ -39,13 +42,17 @@ end;
 
 
 class procedure TUtils.Vibrar(pTempo: cardinal);
+{$IF DEFINED(iOS) or DEFINED(ANDROID)}
 var
   VibratorObj: JObject;
   Vibrator: JVibrator;
+{$ENDIF}
 begin
+{$IF DEFINED(iOS) or DEFINED(ANDROID)}
   VibratorObj := SharedActivity.getSystemService(TJActivity.JavaClass.VIBRATOR_SERVICE);
   Vibrator    := TJVibrator.Wrap((VibratorObj as ILocalObject).GetObjectID);
   Vibrator.vibrate(pTempo); //1000 milesegundo
+{$ENDIF}
 end;
 
 end.

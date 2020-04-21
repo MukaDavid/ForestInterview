@@ -10,7 +10,9 @@ uses
   ForestInterview.Form.Parcela in 'ForestInterview.Form.Parcela.pas' {FormParcela},
   ForestInterview.Helper.VertScrollBox in 'ForestInterview.Helper.VertScrollBox.pas',
   ForestInterview.ControleTeclado in 'ForestInterview.ControleTeclado.pas',
-  ForestInterview.Classe.DadosReg in 'ForestInterview.Classe.DadosReg.pas';
+  ForestInterview.Classe.DadosReg in 'ForestInterview.Classe.DadosReg.pas',
+  ForestInterview.Helper.FDQuery in 'ForestInterview.Helper.FDQuery.pas',
+  ForestInterview.Permissions in 'ForestInterview.Permissions.pas';
 
 {$R *.res}
 

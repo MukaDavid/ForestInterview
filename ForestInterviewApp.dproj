@@ -181,6 +181,8 @@
         <DCCReference Include="ForestInterview.Helper.VertScrollBox.pas"/>
         <DCCReference Include="ForestInterview.ControleTeclado.pas"/>
         <DCCReference Include="ForestInterview.Classe.DadosReg.pas"/>
+        <DCCReference Include="ForestInterview.Helper.FDQuery.pas"/>
+        <DCCReference Include="ForestInterview.Permissions.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
