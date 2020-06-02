@@ -8,7 +8,8 @@ uses
   Fmx.Bind.DBEngExt, System.Rtti, System.Bindings.Outputs, Fmx.Bind.Editors, Data.Bind.Components, Data.Bind.DBScope, FMX.StdCtrls, FMX.Layouts, FMX.ListView, FMX.Edit, FMX.TabControl,
   FMX.Controls.Presentation, System.ImageList, FMX.ImgList, FMX.Header, System.Actions, FMX.ActnList, FMX.StdActns, FMX.Colors, FMX.Objects, System.Sensors, System.Sensors.Components,
   FMX.ListBox, ForestInterview.Classe.DadosReg, Generics.collections, ForestInterview.Utils, System.Math, FMX.ScrollBox,
-  FMX.Memo, ForestInterview.Helper.FDQuery, FMX.Effects, ForestInterview.Permissions, System.Permissions;
+  FMX.Memo, ForestInterview.Helper.FDQuery, FMX.Effects, ForestInterview.Permissions, System.Permissions,
+  FMX.Memo.Types, FMX.DialogService, Data.DB;
 
 type
   TFormParcela = class(TForm)
@@ -22,28 +23,25 @@ type
     edtFila: TEdit;
     lblFila: TLabel;
     VerticalScroll: TVertScrollBox;
-    Layout16: TLayout;
-    edtVolume: TEdit;
-    Label10: TLabel;
-    Layout21: TLayout;
-    Layout22: TLayout;
+    LayAltura: TLayout;
+    LayDapCap: TLayout;
     edtTronco: TEdit;
     Label21: TLabel;
-    GroupBox7: TGroupBox;
+    grpSanidade: TGroupBox;
     rdgMorta: TRadioButton;
+    rdgDoente: TRadioButton;
     rdgSaudavel: TRadioButton;
-    rdgFalha: TRadioButton;
-    GroupBox8: TGroupBox;
-    rdgBifurcNao: TRadioButton;
-    rdgBifurcSim: TRadioButton;
-    GroupBox9: TGroupBox;
+    grpBifurcacaoAcima: TGroupBox;
+    rdgBifurcAcimaNao: TRadioButton;
+    rdgBifurcAcimaSim: TRadioButton;
+    grpPonta: TGroupBox;
     rgdPontaSeca: TRadioButton;
     rdgPontaNormal: TRadioButton;
     rdgPontaQueb: TRadioButton;
-    GroupBox10: TGroupBox;
+    grpSinuosidade: TGroupBox;
     rdgSinSinuosa: TRadioButton;
     rdgSinReta: TRadioButton;
-    GroupBox11: TGroupBox;
+    grpOutros: TGroupBox;
     rdgOutros2: TRadioButton;
     rdgOutros1: TRadioButton;
     rdgOutros3: TRadioButton;
@@ -79,8 +77,8 @@ type
     LocationSensor1: TLocationSensor;
     lbxParcela: TListBox;
     ListBoxItem1: TListBoxItem;
-    imgDelete: TImage;
-    Image1: TImage;
+    imgDeleteArv: TImage;
+    imgVoltar: TImage;
     Layout17: TLayout;
     ColorBox8: TColorBox;
     Label13: TLabel;
@@ -92,12 +90,12 @@ type
     Layout8: TLayout;
     ColorBox10: TColorBox;
     Label14: TLabel;
-    Image3: TImage;
+    imgCoordenadas: TImage;
     Label15: TLabel;
     lblFazenda: TLabel;
     lblTalhao: TLabel;
     Label19: TLabel;
-    P: TGroupBox;
+    grpObservacao: TGroupBox;
     Layout15: TLayout;
     ColorBox6: TColorBox;
     Label12: TLabel;
@@ -114,6 +112,38 @@ type
     edtAltura: TEdit;
     ListBoxItem2: TListBoxItem;
     Rectangle1: TRectangle;
+    Layout10: TLayout;
+    Layout13: TLayout;
+    grpNormal: TGroupBox;
+    rdgNormalNao: TRadioButton;
+    rdgNormalSim: TRadioButton;
+    rdgFalha: TRadioButton;
+    Layout18: TLayout;
+    ColorBox11: TColorBox;
+    Label1: TLabel;
+    LayDetalhes: TLayout;
+    cbxUltimaFila: TCheckBox;
+    imgCancelSelArv: TImage;
+    ColorBox12: TColorBox;
+    Label10: TLabel;
+    Layout16: TLayout;
+    Label16: TLabel;
+    cbxFiltro: TComboBox;
+    grpBifurcacaoAbaixo: TGroupBox;
+    rdgBifurcAbaixoNao: TRadioButton;
+    rdgBifurcAbaixoSim: TRadioButton;
+    Layout19: TLayout;
+    ColorBox13: TColorBox;
+    Label17: TLabel;
+    lbxArvoreCad: TListBox;
+    lbiNormal: TListBoxItem;
+    lbiBifurcAbaixa: TListBoxItem;
+    lbiMedidas: TListBoxItem;
+    lbiDetalhes: TListBoxItem;
+    lbiOutros: TListBoxItem;
+    lbiObservacao: TListBoxItem;
+    corMedidas: TColorBox;
+    ColorBox14: TColorBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ImgIncParcelaClick(Sender: TObject);
@@ -121,17 +151,30 @@ type
     procedure imgSaveClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure Image1Click(Sender: TObject);
+    procedure imgVoltarClick(Sender: TObject);
     procedure Image2Click(Sender: TObject);
+    procedure lbxParcelaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+    procedure rdgNormalNaoChange(Sender: TObject);
+    procedure rdgNormalSimChange(Sender: TObject);
+    procedure rdgFalhaChange(Sender: TObject);
+    procedure imgDeleteArvClick(Sender: TObject);
+    procedure lbxParcelaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    procedure imgCancelSelArvClick(Sender: TObject);
+    procedure cbxFiltroChange(Sender: TObject);
   private
     FDicReg : TObjectDictionary<TListBoxItem,TDadosReg>;
     FControleTeclado: TControleTeclado;
+    FLongTap : boolean;
     procedure MontarListBox;
-    procedure onEditListaClick(Sender: TObject);
     procedure ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure SelecionarItem(pListBoxItem: TListBoxItem);
     procedure LimparListBox;
     procedure LoadValuesToControls;
+    procedure SalvarParcela;
+    procedure SaveValuesToDataset;
+    procedure LimparControlesArvore;
+    procedure AjustarExibicaoDeLayouts;
+    procedure CriarItemNoListBox;
 
     { Private declarations }
   public
@@ -145,6 +188,11 @@ implementation
 
 {$R *.fmx}
 
+procedure TFormParcela.cbxFiltroChange(Sender: TObject);
+begin
+  MontarListBox;
+end;
+
 procedure TFormParcela.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := TCloseAction.caFree;
@@ -156,7 +204,8 @@ begin
   FControleTeclado.FormControle := self;
   FControleTeclado.LayoutControle := LayoutMain;
   FControleTeclado.VerticalScrollControle := VerticalScroll;
-  imgDelete.Visible := False;
+  imgDeleteArv.Visible := False;
+  imgCancelSelArv.Visible := False;
   FDicReg := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
   tbcParcela.ActiveTab := TabListaParcela;
 end;
@@ -177,30 +226,71 @@ procedure TFormParcela.FormShow(Sender: TObject);
 begin
   tbcParcela.ActiveTab := TabListaParcela;
   LocationSensor1.Active := True;
-  LimparListBox;
+  ModuleMain.ListarArvore(ModuleMain.ParID);
+
   MontarListBox;
 
-  ModuleMain.qryColetasCad.LoadValue(edtParcela,'COL_PARCELA');
-  ModuleMain.qryColetasCad.LoadValue(edtLog,'COL_LONGITUDE');
-  ModuleMain.qryColetasCad.LoadValue(edtLat,'COL_LATITUDE');
+
+  ModuleMain.qryParcelaCad.LoadValue(edtParcela,'PAR_NOME');
+  ModuleMain.qryParcelaCad.LoadValue(edtLog,'PAR_LONGITUDE');
+  ModuleMain.qryParcelaCad.LoadValue(edtLat,'PAR_LATITUDE');
   ModuleMain.qryColetasCad.LoadValue(lblFazenda,'COL_FAZENDA');
   ModuleMain.qryColetasCad.LoadValue(lblTalhao,'COL_TALHAO');
 
 end;
 
-procedure TFormParcela.Image1Click(Sender: TObject);
+procedure TFormParcela.imgVoltarClick(Sender: TObject);
 begin
-  ModuleMain.qryColetasCad.SaveValue(edtParcela,'COL_PARCELA');
-  ModuleMain.qryColetasCad.SaveValue(edtLog,'COL_LONGITUDE');
-  ModuleMain.qryColetasCad.SaveValue(edtLat,'COL_LATITUDE');
-
+  if (ModuleMain.qryParcelaCad.State <> dsInsert) or
+     (edtParcela.Text <> '') or
+     not (ModuleMain.qryArvoreList.IsEmpty) then
+  begin
+    SalvarParcela;
+  end;
   Close;
+end;
+
+procedure TFormParcela.lbxParcelaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+begin
+  if EventInfo.GestureID = igiLongTap then
+  begin
+    for var li := 0 to lbxParcela.Items.Count - 1 do
+      if lbxParcela.ListItems[li].IsSelected then
+      begin
+        SelecionarItem(lbxParcela.ListItems[li]);
+        imgDeleteArv.Visible := FDicReg.CountCheck > 0;
+        imgCancelSelArv.Visible := FDicReg.CountCheck > 0;
+        FLongTap := True;
+      end;
+  end;
+end;
+
+procedure TFormParcela.lbxParcelaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+begin
+  if (lbxParcela.Items.Count > 0) and not FLongTap then
+  begin
+    if FDicReg.CountCheck > 0 then
+    begin
+      SelecionarItem(Item);
+      imgDeleteArv.Visible := FDicReg.CountCheck > 0;
+    end else begin
+      if ModuleMain.EditarArvore(FDicReg.Items[Item].ID)then
+      begin
+        LoadValuesToControls;
+        tbcParcela.Next;
+      end;
+    end;
+  end;
+  FLongTap := False;
 end;
 
 procedure TFormParcela.Image2Click(Sender: TObject);
 begin
-  edtLog.Text := FloatToStr(RoundTo(LocationSensor1.Sensor.Latitude,-5));
-  edtLat.Text := FloatToStr(RoundTo(LocationSensor1.Sensor.Longitude,-5));
+  //edtLog.Text := FloatToStr(RoundTo(LocationSensor1.Sensor.Latitude,-5));
+  //edtLat.Text := FloatToStr(RoundTo(LocationSensor1.Sensor.Longitude,-5));
+  edtLog.Text := FloatToStr(LocationSensor1.Sensor.Latitude);
+  edtLat.Text := FloatToStr(LocationSensor1.Sensor.Longitude);
+
 end;
 
 procedure TFormParcela.imgCancelClick(Sender: TObject);
@@ -209,111 +299,245 @@ begin
   tbcParcela.Previous;
 end;
 
+procedure TFormParcela.imgCancelSelArvClick(Sender: TObject);
+begin
+  for var lReg in FDicReg do
+  begin
+    if lReg.Value.Check then
+      SelecionarItem(lReg.Key);
+  end;
+  imgDeleteArv.Visible := FDicReg.CountCheck > 0;
+  imgCancelSelArv.Visible := FDicReg.CountCheck > 0;
+end;
+
+procedure TFormParcela.imgDeleteArvClick(Sender: TObject);
+begin
+  if FDicReg.CountCheck = 1 then
+  begin
+    if ModuleMain.qryArvoreList.Locate('ARV_ID',FDicReg.Selecionado.ID,[]) then
+    begin
+      TDialogService.MessageDialog('Excluir este registro?'+sLineBreak+
+                                   'Arvore: '+ModuleMain.qryArvoreList.FieldByName('ARV_NUMERO').AsString,
+                                   TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, 0,
+                                   procedure(const AResult: TModalResult)
+                                   begin
+                                     if AResult = mrYes then
+                                     begin
+                                       ModuleMain.ExcluirArvore(FDicReg.Selecionado.ID);
+                                       ModuleMain.ListarArvore(ModuleMain.ParID);
+                                       MontarListBox;
+                                     end;
+                                   end);
+    end;
+  end;
+
+  if FDicReg.CountCheck > 1 then
+  begin
+    TDialogService.MessageDialog('Excluir os '+ FDicReg.CountCheck.ToString+' registros selecionados?',
+                                 TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo,0,
+                                 procedure(const AResult: TModalResult)
+                                 begin
+                                   if AResult = mrYes then
+                                   begin
+                                     for var lDadosReg in FDicReg.Values do
+                                     begin
+                                       if lDadosReg.Check then
+                                         ModuleMain.ExcluirArvore(lDadosReg.ID);
+                                     end;
+                                     ModuleMain.ListarArvore(ModuleMain.ParID);
+                                     MontarListBox;
+                                   end;
+                                 end);
+  end;
+
+end;
+
 procedure TFormParcela.ImgIncParcelaClick(Sender: TObject);
 begin
-  ModuleMain.IncluirParcela(ModuleMain.ColID);
+  SalvarParcela;
+
+  ModuleMain.IncluirArvore(ModuleMain.ParID);
   tbcParcela.Next;
 
   LoadValuesToControls;
+end;
 
+procedure TFormParcela.SaveValuesToDataset;
+begin
+  ModuleMain.qryArvoreCad.Edit;
+  ModuleMain.qryArvoreCad.SaveValue(rdgNormalSim,'ARV_NORMAL','S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgNormalNao,'ARV_NORMAL','N');
+  ModuleMain.qryArvoreCad.SaveValue(rdgFalha,'ARV_NORMAL','F');
+
+  ModuleMain.qryArvoreCad.SaveValue(rdgSinSinuosa,'ARV_SINUOSIDADE','S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgSinReta,'ARV_SINUOSIDADE','R');
+  ModuleMain.qryArvoreCad.SaveValue(rdgPontaQueb,'ARV_PONTA','Q');
+  ModuleMain.qryArvoreCad.SaveValue(rdgPontaNormal,'ARV_PONTA','N');
+  ModuleMain.qryArvoreCad.SaveValue(rgdPontaSeca,'ARV_PONTA','S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgSaudavel,'ARV_SANIDADE','S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgDoente,'ARV_SANIDADE','D');
+  ModuleMain.qryArvoreCad.SaveValue(rdgMorta,'ARV_SANIDADE','M');
+  ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAbaixoSim, 'ARV_BIFURCACAO_ABAIXO', 'S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAbaixoNao, 'ARV_BIFURCACAO_ABAIXO', 'N');
+  ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAcimaSim,'ARV_BIFURCACAO_ACIMA','S');
+  ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAcimaNao,'ARV_BIFURCACAO_ACIMA','N');
+  ModuleMain.qryArvoreCad.SaveValue(rdgOutros1,'ARV_OUTROS','1');
+  ModuleMain.qryArvoreCad.SaveValue(rdgOutros2,'ARV_OUTROS','2');
+  ModuleMain.qryArvoreCad.SaveValue(rdgOutros3,'ARV_OUTROS','3');
+
+  ModuleMain.qryArvoreCad.SaveValue(edtArvore,'ARV_NUMERO');
+  ModuleMain.qryArvoreCad.SaveValue(edtFila,'ARV_FILA');
+  ModuleMain.qryArvoreCad.SaveValue(edtCova,'ARV_COVA');
+  ModuleMain.qryArvoreCad.SaveValue(edtTronco,'ARV_TRONCO');
+  ModuleMain.qryArvoreCad.SaveValue(edtAltura,'ARV_ALTURA');
+  ModuleMain.qryArvoreCad.SaveValue(memObs,'ARV_OBS');
+  ModuleMain.qryArvoreCad.SaveValue(cbxUltimaFila, 'ARV_ULTIMA');
+  ModuleMain.SalvarArvore;
+
+end;
+
+procedure TFormParcela.LimparControlesArvore;
+begin
+  rdgNormalNao.IsChecked := False;
+  rdgFalha.IsChecked := False;
+  rdgNormalSim.IsChecked := True;
   rdgSinSinuosa.IsChecked := False;
   rdgSinReta.IsChecked := False;
   rdgPontaQueb.IsChecked := False;
   rdgPontaNormal.IsChecked := False;
   rgdPontaSeca.IsChecked := False;
-  rdgSaudavel.IsChecked := False;
   rdgMorta.IsChecked := False;
+  rdgDoente.IsChecked := False;
+  rdgSaudavel.IsChecked := True;
   rdgFalha.IsChecked := False;
-  rdgBifurcSim.IsChecked := False;
-  rdgBifurcNao.IsChecked := False;
+  rdgBifurcABaixoNao.IsChecked := True;
+  rdgBifurcAcimaSim.IsChecked := False;
+  rdgBifurcAcimaNao.IsChecked := False;
   rdgOutros1.IsChecked := False;
   rdgOutros2.IsChecked := False;
   rdgOutros3.IsChecked := False;
+  cbxUltimaFila.IsChecked := False;
 end;
 
 procedure TFormParcela.imgSaveClick(Sender: TObject);
 begin
-  ModuleMain.qryParcelaCad.SaveValue(rdgSinSinuosa,'PAR_SINUOSIDADE','S');
-  ModuleMain.qryParcelaCad.SaveValue(rdgSinReta,'PAR_SINUOSIDADE','R');
-  ModuleMain.qryParcelaCad.SaveValue(rdgPontaQueb,'PAR_PONTA','Q');
-  ModuleMain.qryParcelaCad.SaveValue(rdgPontaNormal,'PAR_PONTA','N');
-  ModuleMain.qryParcelaCad.SaveValue(rgdPontaSeca,'PAR_PONTA','S');
-  ModuleMain.qryParcelaCad.SaveValue(rdgSaudavel,'PAR_SANIDADE','S');
-  ModuleMain.qryParcelaCad.SaveValue(rdgMorta,'PAR_SANIDADE','M');
-  ModuleMain.qryParcelaCad.SaveValue(rdgFalha,'PAR_SANIDADE','F');
-  ModuleMain.qryParcelaCad.SaveValue(rdgBifurcSim,'PAR_BIFURCACAO','S');
-  ModuleMain.qryParcelaCad.SaveValue(rdgBifurcNao,'PAR_BIFURCACAO','N');
-  ModuleMain.qryParcelaCad.SaveValue(rdgOutros1,'PAR_OUTROS','1');
-  ModuleMain.qryParcelaCad.SaveValue(rdgOutros2,'PAR_OUTROS','2');
-  ModuleMain.qryParcelaCad.SaveValue(rdgOutros3,'PAR_OUTROS','3');
+  if not rdgFalha.IsChecked and (StrToFloatDef(edtTronco.Text,0) = 0) then
+  begin
+    TDialogService.ShowMessage('Informe o valo de Dap/Cap.');
+    edtTronco.SetFocus;
+    Exit;
+  end;
 
-  ModuleMain.qryParcelaCad.SaveValue(edtArvore,'PAR_ARVORE');
-  ModuleMain.qryParcelaCad.SaveValue(edtFila,'PAR_FILA');
-  ModuleMain.qryParcelaCad.SaveValue(edtCova,'PAR_COVA');
-  ModuleMain.qryParcelaCad.SaveValue(edtTronco,'PAR_TRONCO');
-  ModuleMain.qryParcelaCad.SaveValue(edtAltura,'PAR_ALTURA');
-  ModuleMain.qryParcelaCad.SaveValue(memObs,'PAR_OBS');
+  if not rdgFalha.IsChecked and (StrToFloatDef(edtTronco.Text,0) < ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MIN').AsFloat) then
+  begin
+    TDialogService.ShowMessage('Valor de Dap/Cap inferior ao mínimo permitido.');
+    edtTronco.SetFocus;
+    Exit;
+  end;
 
+  SaveValuesToDataset;
 
-  ModuleMain.SalvarParcela;
-  LimparListBox;
   MontarListBox;
   tbcParcela.Previous;
 end;
 
 procedure TFormParcela.MontarListBox;
 var
-  lListBoxItem: TListBoxItem;
+  lArvID: integer;
 begin
+  LimparListBox;
+
+  if (cbxFiltro.ItemIndex = 1) then
+    ModuleMain.ListarArvoreDominate(ModuleMain.ParID);
+
+  if (cbxFiltro.ItemIndex = 2) then
+    ModuleMain.ListarArvoreQuebrada(ModuleMain.ParID);
+
   lbxParcela.BeginUpdate;
-  ModuleMain.qryParcelaList.First;
-  while not ModuleMain.qryParcelaList.Eof do
+  ModuleMain.qryArvoreList.First;
+  while not ModuleMain.qryArvoreList.Eof do
   begin
-    lListBoxItem := TListBoxItem.Create(lbxParcela);
-    lListBoxItem.Touch.InteractiveGestures := [TInteractiveGesture.LongTap];
-    lListBoxItem.OnGesture := ListBoxItemGesture;
-
-    lListBoxItem.Visible := True;
-    lListBoxItem.Enabled := True;
-    lListBoxItem.StyleLookup := 'ListBoxItemParcelaStyle';
-    lListBoxItem.Height := 100;
-    lListBoxItem.StylesData['stlEdit.Onclick'] := TValue.From<TNotifyEvent>(onEditListaClick);
-    lListBoxItem.StylesData['stlEdit.Tag'] := Integer(lListBoxItem);
-
-    lListBoxItem.StylesData['stlCova.Text'] := ModuleMain.qryParcelaList.FieldByName('PAR_COVA').AsString;
-    lListBoxItem.StylesData['stlFila.Text'] := ModuleMain.qryParcelaList.FieldByName('PAR_FILA').AsString;
-
-    lListBoxItem.StylesData['stlArvore.Text'] := ModuleMain.qryParcelaList.FieldByName('PAR_ARVORE').AsString;
-    lListBoxItem.StylesData['stlDapCap.Text'] := ModuleMain.qryParcelaList.FieldByName('PAR_TRONCO').AsString;
-    lListBoxItem.StylesData['stlSanidade.Text'] := ModuleMain.ParcelaSanidade;
-    lListBoxItem.StylesData['stlBifurcacao.Text'] := ModuleMain.ParcelaBifurcacao;
-    lListBoxItem.StylesData['stlPontas.Text'] := ModuleMain.ParcelaPonta;
-    lListBoxItem.StylesData['stlSinosidade.Text'] := ModuleMain.ParcelaSinuosidade;
-    lListBoxItem.StylesData['stlAltura.Text'] := ModuleMain.qryParcelaList.FieldByName('PAR_ALTURA').AsString;
-
-
-    lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
-    lbxParcela.AddObject(lListBoxItem);
-
-    FDicReg.New(lListBoxItem, ModuleMain.qryParcelaList.FieldByName('PAR_ID').AsInteger);
-
-    ModuleMain.qryParcelaList.Next;
+    lArvID := ModuleMain.qryArvoreList.FieldByName('ARV_ID').AsInteger;
+    if (cbxFiltro.ItemIndex = 0) or
+      ((cbxFiltro.ItemIndex = 1) and ModuleMain.EhArvoreDominate(lArvID)) or
+      ((cbxFiltro.ItemIndex = 2) and ModuleMain.EhArvoreQuebrada(lArvID)) then
+    begin
+      CriarItemNoListBox;
+    end;
+    ModuleMain.qryArvoreList.Next;
   end;
   lbxParcela.EndUpdate;
 end;
 
-procedure TFormParcela.onEditListaClick(Sender: TObject);
+
+procedure TFormParcela.CriarItemNoListBox;
 var
   lListBoxItem: TListBoxItem;
 begin
-  lListBoxItem := TListBoxItem(TComponent(Sender).Tag);
+  lListBoxItem := TListBoxItem.Create(lbxParcela);
 
-  if ModuleMain.EditarParcela(FDicReg.Items[lListBoxItem].ID) then
+  lListBoxItem.Visible := True;
+  lListBoxItem.Enabled := True;
+
+  if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'N' then
   begin
-    LoadValuesToControls;
-
-    tbcParcela.Next;
+    lListBoxItem.StyleLookup := 'ListBoxItemParcelaStyle';
+    lListBoxItem.Height := 100;
+    lListBoxItem.StylesData['stlSanidade.Text'] := ModuleMain.ArvSanidade;
+    lListBoxItem.StylesData['stlBifurcacao.Text'] := ModuleMain.ArvBifurcacao;
+    lListBoxItem.StylesData['stlPontas.Text'] := ModuleMain.ArvPonta;
+    lListBoxItem.StylesData['stlSinosidade.Text'] := ModuleMain.ArvSinuosidade;
+    lListBoxItem.StylesData['stlAltura.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_ALTURA').AsString;
   end;
+
+  if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'S' then
+  begin
+    lListBoxItem.StyleLookup := 'ListBoxItemAvrNormal';
+    lListBoxItem.Height := 65;
+    lListBoxItem.StylesData['stlStatus.Text'] := ModuleMain.ArvSituacao;
+  end;
+
+  if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'F' then
+  begin
+    lListBoxItem.StyleLookup := 'ListBoxItemAvrNormal';
+    lListBoxItem.Height := 65;
+    lListBoxItem.StylesData['stlStatus.Text'] := ModuleMain.ArvSituacao;
+    lListBoxItem.StylesData['stlDapCap.Visible'] := False;
+    lListBoxItem.StylesData['stlDapCapTit.Visible'] := False;
+  end;
+
+  lListBoxItem.StylesData['stlDapCap.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_TRONCO').AsString;
+  lListBoxItem.StylesData['stlCova.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_COVA').AsString;
+  lListBoxItem.StylesData['stlFila.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_FILA').AsString;
+  lListBoxItem.StylesData['stlArvore.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_NUMERO').AsString;
+
+
+  lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
+  lbxParcela.AddObject(lListBoxItem);
+
+  FDicReg.New(lListBoxItem, ModuleMain.qryArvoreList.FieldByName('ARV_ID').AsInteger);
+end;
+
+procedure TFormParcela.AjustarExibicaoDeLayouts;
+begin
+  lbiBifurcAbaixa.Visible := not rdgFalha.IsChecked;
+  lbiMedidas.Visible := not rdgFalha.IsChecked;
+  lbiDetalhes.Visible := rdgNormalNao.IsChecked;
+end;
+
+procedure TFormParcela.rdgFalhaChange(Sender: TObject);
+begin
+  AjustarExibicaoDeLayouts;
+end;
+
+procedure TFormParcela.rdgNormalNaoChange(Sender: TObject);
+begin
+  AjustarExibicaoDeLayouts;
+end;
+
+procedure TFormParcela.rdgNormalSimChange(Sender: TObject);
+begin
+  AjustarExibicaoDeLayouts;
 end;
 
 procedure TFormParcela.ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
@@ -322,6 +546,28 @@ begin
   begin
     SelecionarItem(TListBoxItem(Sender));
   end;
+end;
+
+procedure TFormParcela.SalvarParcela;
+begin
+  if edtParcela.Text = '' then
+  begin
+    TDialogService.ShowMessage('Informe nome da parcela.');
+    edtParcela.SetFocus;
+    Abort;
+  end;
+
+  if ModuleMain.NomeParcelaExistente(ModuleMain.ColID,ModuleMain.ParID,edtParcela.Text) then
+  begin
+    TDialogService.ShowMessage('O nome da parcela informado já existe.');
+    edtParcela.SetFocus;
+    Abort;
+  end;
+
+  ModuleMain.qryParcelaCad.SaveValue(edtParcela,'PAR_NOME');
+  ModuleMain.qryParcelaCad.SaveValue(edtLog,'PAR_LONGITUDE');
+  ModuleMain.qryParcelaCad.SaveValue(edtLat,'PAR_LATITUDE');
+  ModuleMain.SalvarParcela;
 end;
 
 procedure TFormParcela.SelecionarItem(pListBoxItem : TListBoxItem);
@@ -337,7 +583,8 @@ begin
     FDicReg.Items[pListBoxItem].Check := False;
   end;
   TUtils.Vibrar(50);
-  imgDelete.Visible := FDicReg.CountCheck > 0;
+  imgDeleteArv.Visible := FDicReg.CountCheck > 0;
+  imgCancelSelArv.Visible := FDicReg.CountCheck > 0;
 end;
 
 procedure TFormParcela.LimparListBox;
@@ -348,28 +595,38 @@ end;
 
 procedure TFormParcela.LoadValuesToControls;
 begin
-  ModuleMain.qryParcelaCad.LoadValue(rdgSinSinuosa, 'PAR_SINUOSIDADE', 'S');
-  ModuleMain.qryParcelaCad.LoadValue(rdgSinReta, 'PAR_SINUOSIDADE', 'R');
-  ModuleMain.qryParcelaCad.LoadValue(rdgPontaQueb, 'PAR_PONTA', 'Q');
-  ModuleMain.qryParcelaCad.LoadValue(rdgPontaNormal, 'PAR_PONTA', 'N');
-  ModuleMain.qryParcelaCad.LoadValue(rgdPontaSeca, 'PAR_PONTA', 'S');
-  ModuleMain.qryParcelaCad.LoadValue(rdgSaudavel, 'PAR_SANIDADE', 'S');
-  ModuleMain.qryParcelaCad.LoadValue(rdgMorta, 'PAR_SANIDADE', 'M');
-  ModuleMain.qryParcelaCad.LoadValue(rdgFalha, 'PAR_SANIDADE', 'F');
-  ModuleMain.qryParcelaCad.LoadValue(rdgBifurcSim, 'PAR_BIFURCACAO', 'S');
-  ModuleMain.qryParcelaCad.LoadValue(rdgBifurcNao, 'PAR_BIFURCACAO', 'N');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros1, 'PAR_OUTROS', '1');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros2, 'PAR_OUTROS', '2');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros3, 'PAR_OUTROS', '3');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros4, 'PAR_OUTROS', '4');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros5, 'PAR_OUTROS', '5');
-  ModuleMain.qryParcelaCad.LoadValue(rdgOutros6, 'PAR_OUTROS', '6');
-  ModuleMain.qryParcelaCad.LoadValue(edtArvore, 'PAR_ARVORE');
-  ModuleMain.qryParcelaCad.LoadValue(edtFila, 'PAR_FILA');
-  ModuleMain.qryParcelaCad.LoadValue(edtCova, 'PAR_COVA');
-  ModuleMain.qryParcelaCad.LoadValue(edtTronco, 'PAR_TRONCO');
-  ModuleMain.qryParcelaCad.LoadValue(edtAltura, 'PAR_ALTURA');
-  ModuleMain.qryParcelaCad.LoadValue(memObs, 'PAR_OBS');
+  LimparControlesArvore;
+  ModuleMain.qryArvoreCad.LoadValue(rdgNormalSim,'ARV_NORMAL','S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgNormalNao,'ARV_NORMAL','N');
+  ModuleMain.qryArvoreCad.LoadValue(rdgFalha,'ARV_NORMAL','F');
+
+  ModuleMain.qryArvoreCad.LoadValue(rdgSinSinuosa, 'ARV_SINUOSIDADE', 'S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgSinReta, 'ARV_SINUOSIDADE', 'R');
+  ModuleMain.qryArvoreCad.LoadValue(rdgPontaQueb, 'ARV_PONTA', 'Q');
+  ModuleMain.qryArvoreCad.LoadValue(rdgPontaNormal, 'ARV_PONTA', 'N');
+  ModuleMain.qryArvoreCad.LoadValue(rgdPontaSeca, 'ARV_PONTA', 'S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgSaudavel, 'ARV_SANIDADE', 'S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgMorta, 'ARV_SANIDADE', 'M');
+  ModuleMain.qryArvoreCad.LoadValue(rdgDoente, 'ARV_SANIDADE', 'D');
+  ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAbaixoSim, 'ARV_BIFURCACAO_ABAIXO', 'S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAbaixoNao, 'ARV_BIFURCACAO_ABAIXO', 'N');
+  ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAcimaSim,  'ARV_BIFURCACAO_ACIMA', 'S');
+  ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAcimaNao,  'ARV_BIFURCACAO_ACIMA', 'N');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros1, 'ARV_OUTROS', '1');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros2, 'ARV_OUTROS', '2');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros3, 'ARV_OUTROS', '3');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros4, 'ARV_OUTROS', '4');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros5, 'ARV_OUTROS', '5');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros6, 'ARV_OUTROS', '6');
+  ModuleMain.qryArvoreCad.LoadValue(edtArvore, 'ARV_NUMERO');
+  ModuleMain.qryArvoreCad.LoadValue(edtFila, 'ARV_FILA');
+  ModuleMain.qryArvoreCad.LoadValue(edtCova, 'ARV_COVA');
+  ModuleMain.qryArvoreCad.LoadValue(edtTronco, 'ARV_TRONCO');
+  ModuleMain.qryArvoreCad.LoadValue(edtAltura, 'ARV_ALTURA');
+  ModuleMain.qryArvoreCad.LoadValue(memObs, 'ARV_OBS');
+  ModuleMain.qryArvoreCad.LoadValue(cbxUltimaFila, 'ARV_ULTIMA');
+
+  AjustarExibicaoDeLayouts;
 end;
 
 

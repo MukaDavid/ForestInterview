@@ -49,7 +49,7 @@ var
 {$ENDIF}
 begin
 {$IF DEFINED(iOS) or DEFINED(ANDROID)}
-  VibratorObj := SharedActivity.getSystemService(TJActivity.JavaClass.VIBRATOR_SERVICE);
+  VibratorObj := TAndroidHelper.Activity.getSystemService(TJActivity.JavaClass.VIBRATOR_SERVICE);
   Vibrator    := TJVibrator.Wrap((VibratorObj as ILocalObject).GetObjectID);
   Vibrator.vibrate(pTempo); //1000 milesegundo
 {$ENDIF}

@@ -14,6 +14,8 @@ type
     procedure SaveValue(pDateEdit: TDateEdit; pFieldName: string); overload;
     procedure LoadValue(pMem: TMemo; pFieldName: string); overload;
     procedure SaveValue(pMem: TMemo; pFieldName: string); overload;
+    procedure LoadValue(pCbx: TCheckBox; pFieldName: string); overload;
+    procedure SaveValue(pCbx: TCheckBox; pFieldName: string); overload;
     procedure LoadValue(pLbl: TLabel; pFieldName: string); overload;
   end;
 
@@ -72,6 +74,20 @@ end;
 procedure TFDQueryHelper.LoadValue(pLbl: TLabel; pFieldName: string);
 begin
   pLbl.Text := FieldByName(pFieldName).AsString;
+end;
+
+procedure TFDQueryHelper.LoadValue(pCbx: TCheckBox; pFieldName: string);
+begin
+  pCbx.IsChecked := FieldByName(pFieldName).AsString = 'S';
+end;
+
+procedure TFDQueryHelper.SaveValue(pCbx: TCheckBox; pFieldName: string);
+begin
+  Edit;
+  if pCbx.IsChecked then
+    FieldByName(pFieldName).AsString:= 'S'
+  else
+    FieldByName(pFieldName).AsString:= 'N';
 end;
 
 end.

@@ -16,6 +16,7 @@ type
   TDicRegHelper = class helper for TDicReg
     function CountCheck: integer;
     procedure New(pListBoxItem: TListBoxItem; pId: integer);
+    function Selecionado: TDadosReg;
   end;
 
 implementation
@@ -38,6 +39,16 @@ begin
   lDadosReg.ID := pID;
   lDadosReg.Check := False;
   Add(pListBoxItem, lDadosReg);
+end;
+
+function TDicRegHelper.Selecionado: TDadosReg;
+begin
+  for var lItem in self.Values do
+  begin
+    if lItem.Check then
+      Result := lItem;
+  end;
+
 end;
 
 end.

@@ -10,7 +10,7 @@ uses
   FMX.StdActns, ForestInterview.Form.Parcela, ForestInterview.Form.Cubagem, ForestInterview.Helper.VertScrollBox, FMX.Colors, FMX.ListBox, System.Math.Vectors, FMX.Controls3D, FMX.Layers3D,
   FMX.Styles.Objects, Generics.collections, ForestInterview.Classe.DadosReg, ForestInterview.ControleTeclado,
   ForestInterview.Utils, ForestInterview.Helper.FDQuery, ForestInterview.Permissions,
-  FMX.Effects, FMX.Filter.Effects, System.IOUtils;
+  FMX.Effects, FMX.Filter.Effects, System.IOUtils, FMX.DialogService;
 
 type
   TFormMain = class(TForm)
@@ -89,22 +89,43 @@ type
     Rectangle3: TRectangle;
     imgSave: TImage;
     imgCancel: TImage;
-    ListBox1: TListBox;
+    lbxColeta: TListBox;
     ListBoxItem1: TListBoxItem;
     Layout3D1: TLayout3D;
-    imgDelete: TImage;
+    imgDeleteCol: TImage;
     imgParcela: TImage;
     imgCubagem: TImage;
-    Image1: TImage;
+    imgExportar: TImage;
     ListBoxItem2: TListBoxItem;
     Layout17: TLayout;
-    ColorBox8: TColorBox;
-    Label19: TLabel;
     StyleBook1: TStyleBook;
     edtErroAmostral: TEdit;
     Image2: TImage;
     RectBloqueio: TRectangle;
     MonochromeEffect: TMonochromeEffect;
+    TabListaParcela: TTabItem;
+    Rectangle4: TRectangle;
+    lblParcelas: TLabel;
+    lbxParcela: TListBox;
+    ListBoxItem3: TListBoxItem;
+    ListBoxItem4: TListBoxItem;
+    Layout6: TLayout;
+    Rectangle5: TRectangle;
+    imgIncParcela: TImage;
+    imgDeletePar: TImage;
+    Layout9: TLayout;
+    ColorBox10: TColorBox;
+    Label17: TLabel;
+    lblFazendaParc: TLabel;
+    lblTalhaoParc: TLabel;
+    Label21: TLabel;
+    ColorBox8: TColorBox;
+    Label19: TLabel;
+    imgVoltar: TImage;
+    Layout15: TLayout;
+    imgCancelSelCol: TImage;
+    imgCancelSelPar: TImage;
+    lblValidade: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ImgIncColetaClick(Sender: TObject);
     procedure imgSaveClick(Sender: TObject);
@@ -113,15 +134,31 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure imgParcelaClick(Sender: TObject);
     procedure imgCubagemClick(Sender: TObject);
-    procedure Image1Click(Sender: TObject);
+    procedure imgExportarClick(Sender: TObject);
+    procedure lbxColetaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+    procedure imgIncParcelaClick(Sender: TObject);
+    procedure lbxParcelaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+    procedure imgVoltarClick(Sender: TObject);
+    procedure tbcColetaChange(Sender: TObject);
+    procedure lbxColetaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    procedure imgDeleteColClick(Sender: TObject);
+    procedure imgDeleteParClick(Sender: TObject);
+    procedure imgCancelSelColClick(Sender: TObject);
+    procedure imgCancelSelParClick(Sender: TObject);
+    procedure lbxParcelaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
   private
-    FDicReg : TDicReg;
+    FDicRegColeta : TDicReg;
+    FDicRegParcela : TDicReg;
     FControleTeclado: TControleTeclado;
-    procedure onEditListaClick(Sender: TObject);
-    procedure SelecionarItem(pListBoxItem : TListBoxItem);
-    procedure MontarListBox;
-    procedure LimparListBox;
-    procedure ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    FLongTapCol: Boolean;
+    FLongTapPar: Boolean;
+    procedure SelecionarItem(pDicReg: TDicReg; pListBoxItem : TListBoxItem);
+    procedure MontarListBoxColeta;
+    procedure LimparListBoxColeta;
+    procedure MontarListBoxParcela;
+    procedure LimparListBoxParcela;
+    procedure ListBoxItemGestureColeta(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    procedure ListBoxItemGestureParcela(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure LoadValuesToControls;
     procedure SaveValuesToDataset;
     procedure TravarSistema(pData:TDateTime);
@@ -155,9 +192,12 @@ begin
   imgCubagem.Visible := False;
 
   tbcColeta.ActiveTab := TabListaColeta;
-  FDicReg := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
-  imgDelete.Visible := False;
-
+  FDicRegColeta := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
+  FDicRegParcela := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
+  imgDeleteCol.Visible := False;
+  imgDeletePar.Visible := False;
+  imgCancelSelCol.Visible := False;
+  imgCancelSelPar.Visible := False;
 end;
 
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -174,70 +214,184 @@ end;
 
 procedure TFormMain.FormShow(Sender: TObject);
 begin
-  TravarSistema(StrToDate('05/05/2020'));
-  LimparListBox;
-  MontarListBox;
+  lblValidade.Text := '';
+  TravarSistema(StrToDate('10/06/2020'));
+  LimparListBoxColeta;
+  MontarListBoxColeta;
 end;
 
 
 
-procedure TFormMain.Image1Click(Sender: TObject);
-var
-  sfilename: string;
-  AttachmentFile: JFile;
-  Intent: JIntent;
-  AddressesTo: TJavaObjectArray<JString>;
-  AddressesCC, AddressesBCC: TJavaObjectArray<JString>;
-  lArquivo: TStringList;
+procedure TFormMain.imgCancelSelColClick(Sender: TObject);
 begin
+  for var lReg in FDicRegColeta do
+  begin
+    if lReg.Value.Check then
+      SelecionarItem(FDicRegColeta,lReg.Key);
+  end;
+  imgDeleteCol.Visible := FDicRegColeta.CountCheck > 0;
+  imgCancelSelCol.Visible := FDicRegColeta.CountCheck > 0;
+end;
+
+procedure TFormMain.imgCancelSelParClick(Sender: TObject);
+begin
+  for var lReg in FDicRegParcela do
+  begin
+    if lReg.Value.Check then
+      SelecionarItem(FDicRegParcela,lReg.Key);
+  end;
+  imgDeletePar.Visible := FDicRegParcela.CountCheck > 0;
+  imgCancelSelPar.Visible := FDicRegParcela.CountCheck > 0;
+end;
+
+procedure TFormMain.imgExportarClick(Sender: TObject);
+{$IF DEFINED(ANDROID)}
+var
+  Intent: JIntent;
+  lUriZip: Jnet_Uri;
+  lAttachmentFileZip: JFile;
+{$ENDIF}
+begin
+{$IF DEFINED(ANDROID)}
   Intent := TJIntent.Create;
   Intent.setAction(TJIntent.JavaClass.ACTION_SENDTO);
   Intent.setData(TJnet_Uri.JavaClass.parse(StringToJString('mailto:')));
-  AddressesTo := TJavaObjectArray<JString>.Create(1);
+  var AddressesTo := TJavaObjectArray<JString>.Create(1);
   AddressesTo.Items[0] := StringToJString('mukadavid@gmail.com');
-  //AddressesTo.Items[1] := StringToJString('mail3@anydomain.com');
-  {AddressesCC := TJavaObjectArray<JString>.Create(1);
-  AddressesCC.Items[0] := StringToJString('mail4@anydomain.com');
-  AddressesBCC := TJavaObjectArray<JString>.Create(1);
-  AddressesBCC.Items[0] := StringToJString('mail5@anydomain.com');}
   Intent.putExtra(TJIntent.JavaClass.EXTRA_EMAIL, AddressesTo);
-  //Intent.putExtra(TJIntent.JavaClass.EXTRA_CC, AddressesCC);
-  //Intent.putExtra(TJIntent.JavaClass.EXTRA_BCC, AddressesBCC);
   Intent.putExtra(TJIntent.JavaClass.EXTRA_SUBJECT, StringToJString('Forest Interview'));
   Intent.putExtra(TJIntent.JavaClass.EXTRA_TEXT, StringToJString('Segue em anexo dados do Forest Interview'));
-  lArquivo := TStringList.Create;
-  lArquivo.Add('Campo1,Campo2,Campo3,Campo4');
-  lArquivo.Add('A,B,C,D');
-  lArquivo.Add('1,2,3,4');
-  lArquivo.Add('João,Maria,Pedro,Ana');
-  sfilename := TPath.GetTempPath+ PathDelim +'Teste.csv';
-  lArquivo.SaveToFile(sfilename);
-  lArquivo.Free;
 
-  if sfilename <> '' then
-  begin
-    AttachmentFile := TJFile.JavaClass.init(StringToJString(sfilename));
-    Intent.putExtra(TJIntent.JavaClass.EXTRA_STREAM,
-      TJParcelable.Wrap((TJnet_Uri.JavaClass.fromFile(AttachmentFile)
-      as ILocalObject).GetObjectID));
-  end;
-  SharedActivity.startActivity(Intent);
+  ModuleMain.ExportarDados;
+
+  var lArqZip := TPath.GetTempPath+PathDelim+'DadosColetados.zip';
+  lAttachmentFileZip := TJFile.JavaClass.init(StringToJString(lArqZip));
+  lUriZip := TJnet_Uri.JavaClass.fromFile(lAttachmentFileZip);
+  Intent.putExtra(TJIntent.JavaClass.EXTRA_STREAM,TJParcelable.Wrap(
+                 (lUriZip as ILocalObject).GetObjectID));
+
+
+  TAndroidHelper.Activity.startActivity(Intent);
+
+{$ENDIF}
 end;
 
+
+procedure TFormMain.imgIncParcelaClick(Sender: TObject);
+begin
+  SaveValuesToDataset;
+  ModuleMain.IncluirParcela(ModuleMain.ColID);
+  TFormParcela.Create(Application).ShowModal(
+    procedure(ModalResult: TModalResult)
+    begin
+      ModuleMain.ListarParcela(ModuleMain.ColID);
+      LimparListBoxParcela;
+      MontarListBoxParcela;
+    end);
+end;
 
 procedure TFormMain.imgParcelaClick(Sender: TObject);
 begin
-  SaveValuesToDataset;
-  ModuleMain.ListarParcela(ModuleMain.ColID);
-  TFormParcela.Create(Application).Show;
+  tbcColeta.GotoVisibleTab(TabListaParcela.Index);
 end;
 
-procedure TFormMain.ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+procedure TFormMain.lbxColetaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
 begin
-  case EventInfo.GestureID of
-    igiLongTap, igiDoubleTap : SelecionarItem(TListBoxItem(Sender));
+  if EventInfo.GestureID = igiLongTap then
+  begin
+    for var li := 0 to lbxColeta.Items.Count - 1 do
+      if lbxColeta.ListItems[li].IsSelected then
+      begin
+        SelecionarItem(FDicRegColeta,lbxColeta.ListItems[li]);
+        imgDeleteCol.Visible := FDicRegColeta.CountCheck > 0;
+        imgCancelSelCol.Visible := FDicRegColeta.CountCheck > 0;
+        FLongTapCol := True;
+      end;
   end;
 end;
+
+procedure TFormMain.lbxColetaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+begin
+  if (lbxColeta.Items.Count > 0) and not FLongTapCol then
+  begin
+    if FDicRegColeta.CountCheck > 0 then
+    begin
+      SelecionarItem(FDicRegColeta,Item);
+      imgDeleteCol.Visible := FDicRegColeta.CountCheck > 0;
+      imgCancelSelCol.Visible := FDicRegColeta.CountCheck > 0;
+    end else begin
+      if ModuleMain.EditarColeta(FDicRegColeta.Items[Item].ID) then
+      begin
+        tbcColeta.GotoVisibleTab(TabCadColeta.Index);
+        LoadValuesToControls;
+      end;
+    end;
+  end;
+  FLongTapCol := False;
+end;
+
+procedure TFormMain.lbxParcelaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+begin
+  if EventInfo.GestureID = igiLongTap then
+  begin
+    for var li := 0 to lbxParcela.Items.Count - 1 do
+      if lbxParcela.ListItems[li].IsSelected then
+      begin
+        SelecionarItem(FDicRegParcela,lbxParcela.ListItems[li]);
+        imgDeletePar.Visible := FDicRegParcela.CountCheck > 0;
+        imgCancelSelPar.Visible := FDicRegParcela.CountCheck > 0;
+        FLongTapPar := True;
+      end;
+  end;
+end;
+
+procedure TFormMain.lbxParcelaItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+begin
+  if (lbxParcela.Items.Count > 0) and not FLongTapPar then
+  begin
+    if FDicRegParcela.CountCheck > 0 then
+    begin
+      SelecionarItem(FDicRegParcela,Item);
+      imgDeletePar.Visible := FDicRegParcela.CountCheck > 0;
+      imgCancelSelPar.Visible := FDicRegParcela.CountCheck > 0;
+    end else begin
+      if ModuleMain.EditarParcela(FDicRegParcela.Items[Item].ID) then
+      begin
+        TFormParcela.Create(Application).ShowModal(
+        procedure(ModalResult: TModalResult)
+        begin
+          ModuleMain.ListarParcela(ModuleMain.ColID);
+          LimparListBoxParcela;
+          MontarListBoxParcela;
+        end);
+      end;
+    end;
+  end;
+  FLongTapPar := False;
+end;
+
+procedure TFormMain.ListBoxItemGestureColeta(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+begin
+  case EventInfo.GestureID of
+    igiLongTap, igiDoubleTap : begin
+      SelecionarItem(FDicRegColeta,TListBoxItem(Sender));
+      imgDeleteCol.Visible := FDicRegColeta.CountCheck > 0;
+      imgCancelSelCol.Visible := FDicRegColeta.CountCheck > 0;
+    end;
+  end;
+end;
+
+procedure TFormMain.ListBoxItemGestureParcela(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+begin
+  case EventInfo.GestureID of
+    igiLongTap, igiDoubleTap : begin
+      SelecionarItem(FDicRegParcela,TListBoxItem(Sender));
+      imgDeletePar.Visible := FDicRegParcela.CountCheck > 0;
+      imgCancelSelPar.Visible := FDicRegParcela.CountCheck > 0;
+    end;
+  end;
+end;
+
 
 procedure TFormMain.LoadValuesToControls;
 begin
@@ -257,10 +411,14 @@ begin
   ModuleMain.qryColetasCad.LoadValue(edtLimAlturaMin, 'COL_LIM_ALT_MIN');
   ModuleMain.qryColetasCad.LoadValue(edtLimAlturaMax, 'COL_LIM_ALT_MAX');
   ModuleMain.qryColetasCad.LoadValue(edtErroAmostral, 'COL_ERRO_AMOSTRAL');
+
+  ModuleMain.ListarParcela(ModuleMain.ColID);
+
 end;
 
 procedure TFormMain.SaveValuesToDataset;
 begin
+  ModuleMain.qryColetasCad.Edit;
   ModuleMain.qryColetasCad.SaveValue(rdgParcDap, 'COL_PARCELA_TIPO', 'D');
   ModuleMain.qryColetasCad.SaveValue(rdgParcCap, 'COL_PARCELA_TIPO', 'C');
   ModuleMain.qryColetasCad.SaveValue(rdgCubCap, 'COL_CUBAGEM_TIPO', 'D');
@@ -277,17 +435,20 @@ begin
   ModuleMain.qryColetasCad.SaveValue(EdtLimAlturaMin, 'COL_LIM_ALT_MIN');
   ModuleMain.qryColetasCad.SaveValue(EdtLimAlturaMax, 'COL_LIM_ALT_MAX');
   ModuleMain.qryColetasCad.SaveValue(edtErroAmostral, 'COL_ERRO_AMOSTRAL');
+  ModuleMain.SalvarColeta;
 end;
 
 procedure TFormMain.imgSaveClick(Sender: TObject);
 begin
-  ModuleMain.qryColetasCad.Edit;
   SaveValuesToDataset;
-
-  ModuleMain.SalvarColeta;
-  LimparListBox;
-  MontarListBox;
+  LimparListBoxColeta;
+  MontarListBoxColeta;
   tbcColeta.Previous;
+end;
+
+procedure TFormMain.imgVoltarClick(Sender: TObject);
+begin
+  tbcColeta.GotoVisibleTab(TabCadColeta.Index);
 end;
 
 procedure TFormMain.imgCancelClick(Sender: TObject);
@@ -302,6 +463,89 @@ begin
   TformCubagem.Create(Application).Show;
 end;
 
+procedure TFormMain.imgDeleteColClick(Sender: TObject);
+begin
+  if FDicRegColeta.CountCheck = 1 then
+  begin
+    if ModuleMain.qryColetasList.Locate('COL_ID',FDicRegColeta.Selecionado.ID,[]) then
+    begin
+      TDialogService.MessageDialog('Excluir este registro?'+sLineBreak+
+                                   'Fazenda: '+ModuleMain.qryColetasList.FieldByName('COL_FAZENDA').AsString+sLineBreak+
+                                   'Talhão: '+ModuleMain.qryColetasList.FieldByName('COL_TALHAO').AsString,
+                                   TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, 0,
+                                   procedure(const AResult: TModalResult)
+                                   begin
+                                     if AResult = mrYes then
+                                     begin
+                                       ModuleMain.ExcluirColeta(FDicRegColeta.Selecionado.ID);
+                                       LimparListBoxColeta;
+                                       MontarListBoxColeta;
+                                     end;
+                                   end);
+    end;
+  end;
+
+  if FDicRegColeta.CountCheck > 1 then
+  begin
+    TDialogService.MessageDialog('Excluir os '+ FDicRegColeta.CountCheck.ToString+' registros selecionados?',
+                                 TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo,0,
+                                 procedure(const AResult: TModalResult)
+                                 begin
+                                   if AResult = mrYes then
+                                   begin
+                                     for var lItem in FDicRegColeta.Values do
+                                     begin
+                                       if lItem.Check then
+                                         ModuleMain.ExcluirColeta(lItem.ID);
+                                     end;
+                                     LimparListBoxColeta;
+                                     MontarListBoxColeta;
+                                   end;
+                                 end);
+  end;
+end;
+
+procedure TFormMain.imgDeleteParClick(Sender: TObject);
+begin
+  if FDicRegParcela.CountCheck = 1 then
+  begin
+    if ModuleMain.qryParcelaList.Locate('PAR_ID',FDicRegParcela.Selecionado.ID,[]) then
+    begin
+      TDialogService.MessageDialog('Excluir este registro?'+sLineBreak+
+                                   'Parcela: '+ModuleMain.qryParcelaList.FieldByName('PAR_NOME').AsString,
+                                   TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, 0,
+                                   procedure(const AResult: TModalResult)
+                                   begin
+                                     if AResult = mrYes then
+                                     begin
+                                       ModuleMain.ExcluirParcela(FDicRegParcela.Selecionado.ID);
+                                       LimparListBoxParcela;
+                                       MontarListBoxColeta;
+                                     end;
+                                   end);
+    end;
+  end;
+
+  if FDicRegParcela.CountCheck > 1 then
+  begin
+    TDialogService.MessageDialog('Excluir os '+ FDicRegParcela.CountCheck.ToString+' registros selecionados?',
+                                 TMsgDlgType.mtConfirmation,[TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo,0,
+                                 procedure(const AResult: TModalResult)
+                                 begin
+                                   if AResult = mrYes then
+                                   begin
+                                     for var lItem in FDicRegParcela.Values do
+                                     begin
+                                       if lItem.Check then
+                                         ModuleMain.ExcluirParcela(lItem.ID);
+                                     end;
+                                     LimparListBoxParcela;
+                                     MontarListBoxParcela;
+                                   end;
+                                 end);
+  end;
+end;
+
 procedure TFormMain.ImgIncColetaClick(Sender: TObject);
 begin
   ModuleMain.IncluirColeta;
@@ -310,43 +554,43 @@ begin
   rdgParcCap.IsChecked := False;
   rdgCubCap.IsChecked := False;
   rdgCubDap.IsChecked := False;
+
   LoadValuesToControls;
 
   tbcColeta.Next;
 end;
 
-procedure TFormMain.onEditListaClick(Sender: TObject);
-var
-  lListBoxItem : TListBoxItem;
+procedure TFormMain.SelecionarItem(pDicReg: TDicReg; pListBoxItem : TListBoxItem);
 begin
-  lListBoxItem := TListBoxItem(TComponent(Sender).Tag);
-
-  if ModuleMain.EditarColeta(FDicReg.Items[lListBoxItem].ID) then
-  begin
-    tbcColeta.Next;
-    LoadValuesToControls;
-  end;
-end;
-
-procedure TFormMain.SelecionarItem(pListBoxItem : TListBoxItem);
-begin
-  if not FDicReg.Items[pListBoxItem].Check then
+  if not pDicReg.Items[pListBoxItem].Check then
   begin
     pListBoxItem.StylesData['stlColor.Fill.Color'] := TValue.From<TAlphaColor>(TAlphaColorRec.Papayawhip);
     pListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(True);
-    FDicReg.Items[pListBoxItem].Check := True;
+    pDicReg.Items[pListBoxItem].Check := True;
   end else begin
     pListBoxItem.StylesData['stlColor.Fill.Color'] := TValue.From<TAlphaColor>(TAlphaColorRec.White);
     pListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
-    FDicReg.Items[pListBoxItem].Check := False;
+    pDicReg.Items[pListBoxItem].Check := False;
   end;
   TUtils.Vibrar(50);
-  imgDelete.Visible := FDicReg.CountCheck > 0;
+
 end;
 
 
+procedure TFormMain.tbcColetaChange(Sender: TObject);
+begin
+  if tbcColeta.ActiveTab = TabListaParcela then
+  begin
+    lblFazendaParc.Text := edtFazenda.Text;
+    lblTalhaoParc.Text := edtTalhao.Text;
+    LimparListBoxParcela;
+    MontarListBoxParcela;
+  end;
+end;
+
 procedure TFormMain.TravarSistema(pData: TDateTime);
 begin
+  lblValidade.Text := 'Validade: '+FormatDateTime('DD/MM/YYYY',pData);
   if pData <= Date then
   begin
     RectBloqueio.Visible := True;
@@ -355,25 +599,23 @@ begin
 
 end;
 
-procedure TFormMain.MontarListBox;
+procedure TFormMain.MontarListBoxColeta;
 var
   lListBoxItem: TListBoxItem;
   lDadosReg: TDadosReg;
 begin
-  ListBox1.BeginUpdate;
+  lbxColeta.BeginUpdate;
   ModuleMain.qryColetasList.First;
   while not ModuleMain.qryColetasList.Eof do
   begin
-    lListBoxItem := TListBoxItem.Create(ListBox1);
+    lListBoxItem := TListBoxItem.Create(lbxColeta);
     lListBoxItem.Touch.InteractiveGestures := [TInteractiveGesture.LongTap];
-    lListBoxItem.OnGesture := ListBoxItemGesture;
+    lListBoxItem.OnGesture := ListBoxItemGestureColeta;
 
     lListBoxItem.Visible := True;
     lListBoxItem.Enabled := True;
     lListBoxItem.Height := 54;
-    lListBoxItem.StyleLookup := 'ListBox1Style1';
-    lListBoxItem.StylesData['stlEdit.Onclick'] := TValue.From<TNotifyEvent>(onEditListaClick);
-    lListBoxItem.StylesData['stlEdit.Tag'] := Integer(lListBoxItem);
+    lListBoxItem.StyleLookup := 'ListBoxColeta';
 
     lListBoxItem.StylesData['stlFazenda'] := ModuleMain.qryColetasList.FieldByName('COL_FAZENDA').AsString;
     lListBoxItem.StylesData['stlEquipe']  := ModuleMain.qryColetasList.FieldByName('COL_EQUIPE').AsString;
@@ -381,18 +623,57 @@ begin
     lListBoxItem.StylesData['stlData']    := formatDateTime('dd/mm/yyyy', ModuleMain.qryColetasList.FieldByName('COL_DATA').AsDateTime);
     lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
 
-    ListBox1.AddObject(lListBoxItem);
+    lbxColeta.AddObject(lListBoxItem);
 
-    FDicReg.New(lListBoxItem, ModuleMain.qryColetasList.FieldByName('COL_ID').AsInteger);
+    FDicRegColeta.New(lListBoxItem, ModuleMain.qryColetasList.FieldByName('COL_ID').AsInteger);
     ModuleMain.qryColetasList.Next;
   end;
-  ListBox1.EndUpdate;
+  lbxColeta.EndUpdate;
 end;
 
-procedure TFormMain.LimparListBox;
+procedure TFormMain.MontarListBoxParcela;
+var
+  lListBoxItem: TListBoxItem;
+  lDadosReg: TDadosReg;
 begin
-  FDicReg.Clear;
-  ListBox1.Clear;
+  lbxParcela.BeginUpdate;
+  ModuleMain.qryParcelaList.First;
+  while not ModuleMain.qryParcelaList.Eof do
+  begin
+    lListBoxItem := TListBoxItem.Create(lbxParcela);
+    lListBoxItem.Touch.InteractiveGestures := [TInteractiveGesture.LongTap];
+    lListBoxItem.OnGesture := ListBoxItemGestureParcela;
+
+    lListBoxItem.Visible := True;
+    lListBoxItem.Enabled := True;
+    lListBoxItem.Height := 35;
+    lListBoxItem.StyleLookup := 'ListBoxParcela';
+
+    if ModuleMain.qryParcelaList.FieldByName('PAR_NOME').AsString <> '' then
+      lListBoxItem.StylesData['stlParcela'] := ModuleMain.qryParcelaList.FieldByName('PAR_NOME').AsString
+    else
+      lListBoxItem.StylesData['stlParcela'] := '<Sem Nome>';
+
+    lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
+
+    lbxParcela.AddObject(lListBoxItem);
+
+    FDicRegParcela.New(lListBoxItem, ModuleMain.qryParcelaList.FieldByName('PAR_ID').AsInteger);
+    ModuleMain.qryParcelaList.Next;
+  end;
+  lbxParcela.EndUpdate;
+end;
+
+procedure TFormMain.LimparListBoxColeta;
+begin
+  FDicRegColeta.Clear;
+  lbxColeta.Clear;
+end;
+
+procedure TFormMain.LimparListBoxParcela;
+begin
+  FDicRegParcela.Clear;
+  lbxParcela.Clear;
 end;
 
 end.
