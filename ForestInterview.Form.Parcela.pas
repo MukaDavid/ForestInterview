@@ -9,7 +9,7 @@ uses
   FMX.Controls.Presentation, System.ImageList, FMX.ImgList, FMX.Header, System.Actions, FMX.ActnList, FMX.StdActns, FMX.Colors, FMX.Objects, System.Sensors, System.Sensors.Components,
   FMX.ListBox, ForestInterview.Classe.DadosReg, Generics.collections, ForestInterview.Utils, System.Math, FMX.ScrollBox,
   FMX.Memo, ForestInterview.Helper.FDQuery, FMX.Effects, ForestInterview.Permissions, System.Permissions,
-  FMX.Memo.Types, FMX.DialogService, Data.DB;
+  FMX.Memo.Types, FMX.DialogService, Data.DB, ForestInterview.Helper.Edit;
 
 type
   TFormParcela = class(TForm)
@@ -208,6 +208,9 @@ begin
   imgCancelSelArv.Visible := False;
   FDicReg := TObjectDictionary<TListBoxItem,TDadosReg>.Create([doOwnsValues]);
   tbcParcela.ActiveTab := TabListaParcela;
+
+  edtTronco.AtivarModoDecimal;
+  edtAltura.AtivarModoDecimal;
 end;
 
 procedure TFormParcela.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -482,7 +485,7 @@ begin
   if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'N' then
   begin
     lListBoxItem.StyleLookup := 'ListBoxItemParcelaStyle';
-    lListBoxItem.Height := 100;
+    lListBoxItem.Height := 93;
     lListBoxItem.StylesData['stlSanidade.Text'] := ModuleMain.ArvSanidade;
     lListBoxItem.StylesData['stlBifurcacao.Text'] := ModuleMain.ArvBifurcacao;
     lListBoxItem.StylesData['stlPontas.Text'] := ModuleMain.ArvPonta;
@@ -493,24 +496,27 @@ begin
   if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'S' then
   begin
     lListBoxItem.StyleLookup := 'ListBoxItemAvrNormal';
-    lListBoxItem.Height := 65;
+    lListBoxItem.Height := 73;
     lListBoxItem.StylesData['stlStatus.Text'] := ModuleMain.ArvSituacao;
   end;
 
   if ModuleMain.qryArvoreList.FieldByName('ARV_NORMAL').AsString = 'F' then
   begin
     lListBoxItem.StyleLookup := 'ListBoxItemAvrNormal';
-    lListBoxItem.Height := 65;
+    lListBoxItem.Height := 63;
     lListBoxItem.StylesData['stlStatus.Text'] := ModuleMain.ArvSituacao;
     lListBoxItem.StylesData['stlDapCap.Visible'] := False;
     lListBoxItem.StylesData['stlDapCapTit.Visible'] := False;
+    lListBoxItem.StylesData['stlAltura.Visible'] := False;
+    lListBoxItem.StylesData['stlAlturaTit.Visible'] := False;
   end;
 
   lListBoxItem.StylesData['stlDapCap.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_TRONCO').AsString;
+
   lListBoxItem.StylesData['stlCova.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_COVA').AsString;
   lListBoxItem.StylesData['stlFila.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_FILA').AsString;
   lListBoxItem.StylesData['stlArvore.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_NUMERO').AsString;
-
+  lListBoxItem.StylesData['stlAltura.Text'] := ModuleMain.qryArvoreList.FieldByName('ARV_ALTURA').AsString;
 
   lListBoxItem.StylesData['ImgSel.Visible'] := TValue.From<Boolean>(False);
   lbxParcela.AddObject(lListBoxItem);

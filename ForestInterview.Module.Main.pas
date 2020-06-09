@@ -80,6 +80,44 @@ type
     FMTBCDField2: TFMTBCDField;
     qryArvoreDominate: TFDQuery;
     qryArvoreQuebrada: TFDQuery;
+    qryExportacao: TFDQuery;
+    qryExportacaoCOL_ID: TIntegerField;
+    qryExportacaoCOL_EQUIPE: TStringField;
+    qryExportacaoCOL_FAZENDA: TStringField;
+    qryExportacaoCOL_TALHAO: TStringField;
+    qryExportacaoCOL_DATA: TDateField;
+    qryExportacaoCOL_AREA_PARCELA: TFMTBCDField;
+    qryExportacaoCOL_AREA_TALHAO: TFMTBCDField;
+    qryExportacaoCOL_PARCELA_TIPO: TStringField;
+    qryExportacaoCOL_CUBAGEM_TIPO: TStringField;
+    qryExportacaoCOL_FATOR_FORMA: TFMTBCDField;
+    qryExportacaoCOL_LIM_CAPDAP_MIN: TFMTBCDField;
+    qryExportacaoCOL_LIM_CAPDAP_MAX: TFMTBCDField;
+    qryExportacaoCOL_LIM_ALT_MIN: TFMTBCDField;
+    qryExportacaoCOL_LIM_ALT_MAX: TFMTBCDField;
+    qryExportacaoCOL_ERRO_AMOSTRAL: TFMTBCDField;
+    qryExportacaoPAR_ID: TIntegerField;
+    qryExportacaoCOL_ID_1: TIntegerField;
+    qryExportacaoPAR_NOME: TStringField;
+    qryExportacaoPAR_LONGITUDE: TFMTBCDField;
+    qryExportacaoPAR_LATITUDE: TFMTBCDField;
+    qryExportacaoARV_ID: TIntegerField;
+    qryExportacaoPAR_ID_1: TIntegerField;
+    qryExportacaoARV_NUMERO: TIntegerField;
+    qryExportacaoARV_FILA: TIntegerField;
+    qryExportacaoARV_COVA: TIntegerField;
+    qryExportacaoARV_ULTIMA: TStringField;
+    qryExportacaoARV_TRONCO: TFMTBCDField;
+    qryExportacaoARV_ALTURA: TFMTBCDField;
+    qryExportacaoARV_NORMAL: TStringField;
+    qryExportacaoARV_SANIDADE: TStringField;
+    qryExportacaoARV_BIFURCACAO_ABAIXO: TStringField;
+    qryExportacaoARV_BIFURCACAO_ACIMA: TStringField;
+    qryExportacaoARV_PONTA: TStringField;
+    qryExportacaoARV_SINUOSIDADE: TStringField;
+    qryExportacaoARV_OUTROS: TStringField;
+    qryExportacaoARV_VOLUME: TFMTBCDField;
+    qryExportacaoARV_OBS: TWideMemoField;
     procedure DataModuleCreate(Sender: TObject);
     procedure FDConnectionBeforeConnect(Sender: TObject);
     procedure qryColetasCadNewRecord(DataSet: TDataSet);
@@ -92,7 +130,8 @@ type
     property ColID: integer read FColID write FColID;
     property ParID: integer read FParID write FParID;
 
-    Procedure ExportarDados;
+    procedure ExportarDados;
+    procedure GerarCSV(pArquivo: string);
 
     procedure IncluirColeta;
     function EditarColeta(pID: Integer): boolean;
@@ -634,12 +673,13 @@ end;
 procedure TModuleMain.ExportarDados;
 var
   lZipFile: TZipFile;
-  lArqColeta, lArqParcela, lArqArvore: String;
+  lArqColeta, lArqParcela, lArqArvore, lArqDados: String;
 begin
 
-  lArqColeta:= TPath.GetTempPath+PathDelim+'Coleta.xml';
-  lArqParcela:= TPath.GetTempPath+PathDelim+'Parcela.xml';
-  lArqArvore:= TPath.GetTempPath+PathDelim+'Arvore.xml';
+  lArqColeta  := TPath.GetTempPath+PathDelim+'Coleta.xml';
+  lArqParcela := TPath.GetTempPath+PathDelim+'Parcela.xml';
+  lArqArvore  := TPath.GetTempPath+PathDelim+'Arvore.xml';
+  lArqDados   := TPath.GetTempPath+PathDelim+'Dados.csv';
 
   qryColetaExp.Close;
   qryColetaExp.Open;
@@ -656,6 +696,8 @@ begin
   qryArvoreExp.SaveToFile(lArqArvore,sfXML);
   qryArvoreExp.Close;
 
+  GerarCSV(lArqDados);
+
   lZipFile := TZipFile.Create;
   try
     lZipFile.Open(TPath.GetTempPath+PathDelim+'DadosColetados.zip', zmWrite);
@@ -663,6 +705,7 @@ begin
     lZipFile.Add(lArqColeta);
     lZipFile.Add(lArqParcela);
     lZipFile.Add(lArqArvore);
+    lZipFile.Add(lArqDados);
   finally
     lZipFile.Free;
   end;
@@ -672,6 +715,55 @@ end;
 procedure TModuleMain.FDConnectionBeforeConnect(Sender: TObject);
 begin
   FDConnection.Params.Values['Database'] := TUtils.DirArquivo('ForestInterview.db');
+end;
+
+procedure TModuleMain.GerarCSV(pArquivo: string);
+var
+  lStringList: TStringList;
+  lLinha: string;
+begin
+  qryExportacao.Close;
+  qryExportacao.Open;
+  lStringList := TStringList.Create;
+  try
+    for var li := 0 to qryExportacao.FieldCount - 1 do
+    begin
+      if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
+        lLinha := lLinha + qryExportacao.Fields[li].DisplayName+';';
+    end;
+    lStringList.Add(lLinha);
+
+
+    while not qryExportacao.Eof do
+    begin
+      lLinha := '';
+      for var li := 0 to qryExportacao.FieldCount - 1 do
+      begin
+        if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
+        begin
+          if qryExportacao.Fields[li].DataType = ftFMTBcd then
+            lLinha := lLinha + FormatFloat('0.,##',qryExportacao.Fields[li].AsFloat)+';';
+          if qryExportacao.Fields[li].DataType = ftString then
+            lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
+          if qryExportacao.Fields[li].DataType = ftDate then
+            lLinha := lLinha + FormatDateTime('DD/MM/YYYY',qryExportacao.Fields[li].AsDateTime)+';';
+          if qryExportacao.Fields[li].DataType = ftMemo then
+            lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
+          if qryExportacao.Fields[li].DataType = ftInteger then
+            lLinha := lLinha + qryExportacao.Fields[li].AsInteger.ToString+';';
+
+        end;
+      end;
+      lStringList.Add(lLinha);
+      qryExportacao.Next;
+    end;
+    lStringList.SaveToFile(pArquivo);
+
+  finally
+    lStringList.Free;
+    //qryArvoreDominate.Close;
+    qryExportacao.Close;
+  end;
 end;
 
 end.

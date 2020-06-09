@@ -10,7 +10,7 @@ uses
   FMX.StdActns, ForestInterview.Form.Parcela, ForestInterview.Form.Cubagem, ForestInterview.Helper.VertScrollBox, FMX.Colors, FMX.ListBox, System.Math.Vectors, FMX.Controls3D, FMX.Layers3D,
   FMX.Styles.Objects, Generics.collections, ForestInterview.Classe.DadosReg, ForestInterview.ControleTeclado,
   ForestInterview.Utils, ForestInterview.Helper.FDQuery, ForestInterview.Permissions,
-  FMX.Effects, FMX.Filter.Effects, System.IOUtils, FMX.DialogService;
+  FMX.Effects, FMX.Filter.Effects, System.IOUtils, FMX.DialogService, ForestInterview.Helper.Edit;
 
 type
   TFormMain = class(TForm)
@@ -198,6 +198,17 @@ begin
   imgDeletePar.Visible := False;
   imgCancelSelCol.Visible := False;
   imgCancelSelPar.Visible := False;
+
+
+  edtAreaParcela.AtivarModoDecimal;
+  edtAreaTalhao.AtivarModoDecimal;
+  edtFatorForma.AtivarModoDecimal;
+  edtLimCapDapMin.AtivarModoDecimal;
+  edtLimCapDapMax.AtivarModoDecimal;
+  edtLimAlturaMin.AtivarModoDecimal;
+  edtLimAlturaMax.AtivarModoDecimal;
+  edtErroAmostral.AtivarModoDecimal;
+
 end;
 
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -215,7 +226,7 @@ end;
 procedure TFormMain.FormShow(Sender: TObject);
 begin
   lblValidade.Text := '';
-  TravarSistema(StrToDate('10/06/2020'));
+  TravarSistema(StrToDate('15/06/2020'));
   LimparListBoxColeta;
   MontarListBoxColeta;
 end;
@@ -641,9 +652,7 @@ begin
   while not ModuleMain.qryParcelaList.Eof do
   begin
     lListBoxItem := TListBoxItem.Create(lbxParcela);
-    lListBoxItem.Touch.InteractiveGestures := [TInteractiveGesture.LongTap];
-    lListBoxItem.OnGesture := ListBoxItemGestureParcela;
-
+    
     lListBoxItem.Visible := True;
     lListBoxItem.Enabled := True;
     lListBoxItem.Height := 35;

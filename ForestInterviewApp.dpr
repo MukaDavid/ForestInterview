@@ -12,7 +12,8 @@ uses
   ForestInterview.ControleTeclado in 'ForestInterview.ControleTeclado.pas',
   ForestInterview.Classe.DadosReg in 'ForestInterview.Classe.DadosReg.pas',
   ForestInterview.Helper.FDQuery in 'ForestInterview.Helper.FDQuery.pas',
-  ForestInterview.Permissions in 'ForestInterview.Permissions.pas';
+  ForestInterview.Permissions in 'ForestInterview.Permissions.pas',
+  ForestInterview.Helper.Edit in 'ForestInterview.Helper.Edit.pas';
 
 {$R *.res}
 
