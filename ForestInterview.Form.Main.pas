@@ -146,6 +146,7 @@ type
     procedure imgCancelSelColClick(Sender: TObject);
     procedure imgCancelSelParClick(Sender: TObject);
     procedure lbxParcelaGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    procedure rdgParcCapChange(Sender: TObject);
   private
     FDicRegColeta : TDicReg;
     FDicRegParcela : TDicReg;
@@ -226,7 +227,7 @@ end;
 procedure TFormMain.FormShow(Sender: TObject);
 begin
   lblValidade.Text := '';
-  TravarSistema(StrToDate('15/06/2020'));
+  TravarSistema(StrToDate('15/07/2020'));
   LimparListBoxColeta;
   MontarListBoxColeta;
 end;
@@ -671,6 +672,27 @@ begin
     ModuleMain.qryParcelaList.Next;
   end;
   lbxParcela.EndUpdate;
+end;
+
+procedure TFormMain.rdgParcCapChange(Sender: TObject);
+begin
+  {
+  'COL_PARCELA_TIPO VARCHAR(1), '+
+                             'COL_CUBAGEM_TIPO VARCHAR(1), '+
+                             'COL_FATOR_FORMA DECIMAL(10,5), '+
+                             'COL_LIM_CAPDAP_MIN DECIMAL(10,5), '+
+                             'COL_LIM_CAPDAP_MAX DECIMAL(10,5), '+
+                             'COL_LIM_ALT_MIN DECIMAL(10,5), '+
+                             'COL_LIM_ALT_MAX DECIMAL(10,5), '+
+
+
+  if  then
+
+  DIÂMETRO mínimo de 5 cm
+  circunferência, que neste caso será 15,7 cm)
+  e mãximo de 40 cm  (ou CAP de 125,7 cm).
+  A altura a mesma coisa: mínimo de 2 m e máximo de 35 m
+  }
 end;
 
 procedure TFormMain.LimparListBoxColeta;

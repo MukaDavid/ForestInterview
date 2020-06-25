@@ -431,9 +431,40 @@ begin
     Exit;
   end;
 
-  if not rdgFalha.IsChecked and (StrToFloatDef(edtTronco.Text,0) < ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MIN').AsFloat) then
+  if not rdgFalha.IsChecked
+  and (ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MIN').AsFloat <> 0)
+  and (StrToFloatDef(edtTronco.Text,0) < ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MIN').AsFloat) then
   begin
     TDialogService.ShowMessage('Valor de Dap/Cap inferior ao mínimo permitido.');
+    edtTronco.SetFocus;
+    Exit;
+  end;
+
+  if not rdgFalha.IsChecked
+  and (ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MAX').AsFloat <> 0)
+  and (StrToFloatDef(edtTronco.Text,0) > ModuleMain.qryColetasCad.FieldByName('COL_LIM_CAPDAP_MAX').AsFloat) then
+  begin
+    TDialogService.ShowMessage('Valor de Dap/Cap superior ao máximo permitido.');
+    edtTronco.SetFocus;
+    Exit;
+  end;
+
+  if not rdgFalha.IsChecked
+     and (StrToFloatDef(edtAltura.Text,0) <> 0)
+     and (ModuleMain.qryColetasCad.FieldByName('COL_LIM_ALT_MIN').AsFloat <> 0)
+     and (StrToFloatDef(edtAltura.Text,0) < ModuleMain.qryColetasCad.FieldByName('COL_LIM_ALT_MIN').AsFloat) then
+  begin
+    TDialogService.ShowMessage('Valor de Altura inferior ao mínimo permitido.');
+    edtTronco.SetFocus;
+    Exit;
+  end;
+
+  if not rdgFalha.IsChecked
+     and (StrToFloatDef(edtAltura.Text,0) <> 0)
+     and (ModuleMain.qryColetasCad.FieldByName('COL_LIM_ALT_MAX').AsFloat <> 0)
+     and (StrToFloatDef(edtAltura.Text,0) > ModuleMain.qryColetasCad.FieldByName('COL_LIM_ALT_MAX').AsFloat) then
+  begin
+    TDialogService.ShowMessage('Valor de Altura superior ao máximo permitido.');
     edtTronco.SetFocus;
     Exit;
   end;
