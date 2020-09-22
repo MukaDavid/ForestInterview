@@ -9,7 +9,7 @@ uses
   FMX.Controls.Presentation, System.ImageList, FMX.ImgList, FMX.Header, System.Actions, FMX.ActnList, FMX.StdActns, FMX.Colors, FMX.Objects, System.Sensors, System.Sensors.Components,
   FMX.ListBox, ForestInterview.Classe.DadosReg, Generics.collections, ForestInterview.Utils, System.Math, FMX.ScrollBox,
   FMX.Memo, ForestInterview.Helper.FDQuery, FMX.Effects, ForestInterview.Permissions, System.Permissions,
-  FMX.Memo.Types, FMX.DialogService, Data.DB, ForestInterview.Helper.Edit;
+  FMX.Memo.Types, FMX.DialogService, Data.DB, ForestInterview.Helper.Edit, FMX.Filter.Effects;
 
 type
   TFormParcela = class(TForm)
@@ -42,9 +42,6 @@ type
     rdgSinSinuosa: TRadioButton;
     rdgSinReta: TRadioButton;
     grpOutros: TGroupBox;
-    rdgOutros2: TRadioButton;
-    rdgOutros1: TRadioButton;
-    rdgOutros3: TRadioButton;
     Layout2: TLayout;
     ColorBox7: TColorBox;
     Label9: TLabel;
@@ -102,9 +99,6 @@ type
     memObs: TMemo;
     lblCova: TLabel;
     edtCova: TEdit;
-    rdgOutros5: TRadioButton;
-    rdgOutros4: TRadioButton;
-    rdgOutros6: TRadioButton;
     StyleBook1: TStyleBook;
     Label4: TLabel;
     edtArvore: TEdit;
@@ -144,6 +138,21 @@ type
     lbiObservacao: TListBoxItem;
     corMedidas: TColorBox;
     ColorBox14: TColorBox;
+    FillRGBEffect1: TFillRGBEffect;
+    chx2: TCheckBox;
+    chx0: TCheckBox;
+    chx1: TCheckBox;
+    chx3: TCheckBox;
+    chx5: TCheckBox;
+    chx4: TCheckBox;
+    chx6: TCheckBox;
+    chx7: TCheckBox;
+    chx8: TCheckBox;
+    chx9: TCheckBox;
+    chx10: TCheckBox;
+    chx11: TCheckBox;
+    chx13: TCheckBox;
+    chx12: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ImgIncParcelaClick(Sender: TObject);
@@ -166,7 +175,7 @@ type
     FControleTeclado: TControleTeclado;
     FLongTap : boolean;
     procedure MontarListBox;
-    procedure ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
+    //procedure ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure SelecionarItem(pListBoxItem: TListBoxItem);
     procedure LimparListBox;
     procedure LoadValuesToControls;
@@ -384,9 +393,9 @@ begin
   ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAbaixoNao, 'ARV_BIFURCACAO_ABAIXO', 'N');
   ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAcimaSim,'ARV_BIFURCACAO_ACIMA','S');
   ModuleMain.qryArvoreCad.SaveValue(rdgBifurcAcimaNao,'ARV_BIFURCACAO_ACIMA','N');
-  ModuleMain.qryArvoreCad.SaveValue(rdgOutros1,'ARV_OUTROS','1');
+  {ModuleMain.qryArvoreCad.SaveValue(rdgOutros1,'ARV_OUTROS','1');
   ModuleMain.qryArvoreCad.SaveValue(rdgOutros2,'ARV_OUTROS','2');
-  ModuleMain.qryArvoreCad.SaveValue(rdgOutros3,'ARV_OUTROS','3');
+  ModuleMain.qryArvoreCad.SaveValue(rdgOutros3,'ARV_OUTROS','3'); }
 
   ModuleMain.qryArvoreCad.SaveValue(edtArvore,'ARV_NUMERO');
   ModuleMain.qryArvoreCad.SaveValue(edtFila,'ARV_FILA');
@@ -395,6 +404,22 @@ begin
   ModuleMain.qryArvoreCad.SaveValue(edtAltura,'ARV_ALTURA');
   ModuleMain.qryArvoreCad.SaveValue(memObs,'ARV_OBS');
   ModuleMain.qryArvoreCad.SaveValue(cbxUltimaFila, 'ARV_ULTIMA');
+
+  ModuleMain.ClassificarArvore(0,chx0.IsChecked);
+  ModuleMain.ClassificarArvore(1,chx1.IsChecked);
+  ModuleMain.ClassificarArvore(2,chx2.IsChecked);
+  ModuleMain.ClassificarArvore(3,chx3.IsChecked);
+  ModuleMain.ClassificarArvore(4,chx4.IsChecked);
+  ModuleMain.ClassificarArvore(5,chx5.IsChecked);
+  ModuleMain.ClassificarArvore(6,chx6.IsChecked);
+  ModuleMain.ClassificarArvore(7,chx7.IsChecked);
+  ModuleMain.ClassificarArvore(8,chx8.IsChecked);
+  ModuleMain.ClassificarArvore(9,chx9.IsChecked);
+  ModuleMain.ClassificarArvore(10,chx10.IsChecked);
+  ModuleMain.ClassificarArvore(11,chx11.IsChecked);
+  ModuleMain.ClassificarArvore(12,chx12.IsChecked);
+  ModuleMain.ClassificarArvore(13,chx13.IsChecked);
+
   ModuleMain.SalvarArvore;
 
 end;
@@ -416,9 +441,9 @@ begin
   rdgBifurcABaixoNao.IsChecked := True;
   rdgBifurcAcimaSim.IsChecked := False;
   rdgBifurcAcimaNao.IsChecked := False;
-  rdgOutros1.IsChecked := False;
+  {rdgOutros1.IsChecked := False;
   rdgOutros2.IsChecked := False;
-  rdgOutros3.IsChecked := False;
+  rdgOutros3.IsChecked := False;}
   cbxUltimaFila.IsChecked := False;
 end;
 
@@ -576,7 +601,7 @@ procedure TFormParcela.rdgNormalSimChange(Sender: TObject);
 begin
   AjustarExibicaoDeLayouts;
 end;
-
+{
 procedure TFormParcela.ListBoxItemGesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
 begin
   if EventInfo.GestureID = igiLongTap then
@@ -584,7 +609,7 @@ begin
     SelecionarItem(TListBoxItem(Sender));
   end;
 end;
-
+}
 procedure TFormParcela.SalvarParcela;
 begin
   if edtParcela.Text = '' then
@@ -632,7 +657,9 @@ end;
 
 procedure TFormParcela.LoadValuesToControls;
 begin
+  ModuleMain.ListarClassificacao(ModuleMain.ArvID);
   LimparControlesArvore;
+
   ModuleMain.qryArvoreCad.LoadValue(rdgNormalSim,'ARV_NORMAL','S');
   ModuleMain.qryArvoreCad.LoadValue(rdgNormalNao,'ARV_NORMAL','N');
   ModuleMain.qryArvoreCad.LoadValue(rdgFalha,'ARV_NORMAL','F');
@@ -649,12 +676,12 @@ begin
   ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAbaixoNao, 'ARV_BIFURCACAO_ABAIXO', 'N');
   ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAcimaSim,  'ARV_BIFURCACAO_ACIMA', 'S');
   ModuleMain.qryArvoreCad.LoadValue(rdgBifurcAcimaNao,  'ARV_BIFURCACAO_ACIMA', 'N');
-  ModuleMain.qryArvoreCad.LoadValue(rdgOutros1, 'ARV_OUTROS', '1');
+  {ModuleMain.qryArvoreCad.LoadValue(rdgOutros1, 'ARV_OUTROS', '1');
   ModuleMain.qryArvoreCad.LoadValue(rdgOutros2, 'ARV_OUTROS', '2');
   ModuleMain.qryArvoreCad.LoadValue(rdgOutros3, 'ARV_OUTROS', '3');
   ModuleMain.qryArvoreCad.LoadValue(rdgOutros4, 'ARV_OUTROS', '4');
   ModuleMain.qryArvoreCad.LoadValue(rdgOutros5, 'ARV_OUTROS', '5');
-  ModuleMain.qryArvoreCad.LoadValue(rdgOutros6, 'ARV_OUTROS', '6');
+  ModuleMain.qryArvoreCad.LoadValue(rdgOutros6, 'ARV_OUTROS', '6');}
   ModuleMain.qryArvoreCad.LoadValue(edtArvore, 'ARV_NUMERO');
   ModuleMain.qryArvoreCad.LoadValue(edtFila, 'ARV_FILA');
   ModuleMain.qryArvoreCad.LoadValue(edtCova, 'ARV_COVA');
@@ -662,6 +689,21 @@ begin
   ModuleMain.qryArvoreCad.LoadValue(edtAltura, 'ARV_ALTURA');
   ModuleMain.qryArvoreCad.LoadValue(memObs, 'ARV_OBS');
   ModuleMain.qryArvoreCad.LoadValue(cbxUltimaFila, 'ARV_ULTIMA');
+
+  chx0.IsChecked := ModuleMain.ClassificacaoSelecionada(0);
+  chx1.IsChecked := ModuleMain.ClassificacaoSelecionada(1);
+  chx2.IsChecked := ModuleMain.ClassificacaoSelecionada(2);
+  chx3.IsChecked := ModuleMain.ClassificacaoSelecionada(3);
+  chx4.IsChecked := ModuleMain.ClassificacaoSelecionada(4);
+  chx5.IsChecked := ModuleMain.ClassificacaoSelecionada(5);
+  chx6.IsChecked := ModuleMain.ClassificacaoSelecionada(6);
+  chx7.IsChecked := ModuleMain.ClassificacaoSelecionada(7);
+  chx8.IsChecked := ModuleMain.ClassificacaoSelecionada(8);
+  chx9.IsChecked := ModuleMain.ClassificacaoSelecionada(9);
+  chx10.IsChecked := ModuleMain.ClassificacaoSelecionada(10);
+  chx11.IsChecked := ModuleMain.ClassificacaoSelecionada(11);
+  chx12.IsChecked := ModuleMain.ClassificacaoSelecionada(12);
+  chx13.IsChecked := ModuleMain.ClassificacaoSelecionada(13);
 
   AjustarExibicaoDeLayouts;
 end;

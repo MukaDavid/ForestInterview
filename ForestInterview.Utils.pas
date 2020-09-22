@@ -28,7 +28,7 @@ class function TUtils.DirArquivo(pArquivo: string): string;
 begin
   result := Diretorio + pArquivo;
 end;
-
+  { TODO : Tranformar para ios }
 class function TUtils.Diretorio: String;
 begin
   {$IF DEFINED(iOS) or DEFINED(ANDROID)}

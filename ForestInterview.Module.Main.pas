@@ -118,20 +118,24 @@ type
     qryExportacaoARV_OUTROS: TStringField;
     qryExportacaoARV_VOLUME: TFMTBCDField;
     qryExportacaoARV_OBS: TWideMemoField;
+    qryFazendas: TFDQuery;
+    qryClassificacaoCad: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure FDConnectionBeforeConnect(Sender: TObject);
     procedure qryColetasCadNewRecord(DataSet: TDataSet);
   private
-    FColID: integer;
+    FColI: integer;
     FParID: integer;
+    FArvID: integer;
     function NextID(pTableName: String): Integer;
     { Private declarations }
   public
-    property ColID: integer read FColID write FColID;
+    property ColID: integer read FColI write FColI;
     property ParID: integer read FParID write FParID;
+    property ArvID: integer read FArvID write FArvID;
 
-    procedure ExportarDados;
-    procedure GerarCSV(pArquivo: string);
+    //procedure ExportarDados;
+    procedure GerarCSV(pArquivo: string; pID: Integer);
 
     procedure IncluirColeta;
     function EditarColeta(pID: Integer): boolean;
@@ -166,6 +170,13 @@ type
     procedure ListarArvoreQuebrada(pParID: Integer);
     function EhArvoreDominate(pArvID: Integer): boolean;
     function EhArvoreQuebrada(pArvID: Integer): boolean;
+
+
+    procedure ListarClassificacao(pArvID: Integer);
+    procedure IncluirClassificacao(pArvID: Integer; pClaCod: Integer);
+    procedure ExcluirClassificacao(pArvID: Integer; pClaCod: Integer);
+    function ClassificacaoSelecionada(pClaCod: Integer): boolean;
+    procedure ClassificarArvore(pClaCod: Integer; pSelecionado: Boolean);
 
 
     procedure IncluirCubagem;
@@ -212,6 +223,7 @@ procedure TModuleMain.CancelarParcela;
 begin
   qryParcelaCad.Cancel;
 end;
+
 
 procedure TModuleMain.DataModuleCreate(Sender: TObject);
 begin
@@ -269,6 +281,15 @@ begin
                              ');';
 
   qryCreateTable.ExecSQL;
+
+  qryCreateTable.SQL.Text := 'CREATE TABLE IF NOT EXISTS CLASSIFICACAO ('+
+                             'CLA_ID INT, '+
+                             'ARV_ID INT NOT NULL, '+
+                             'CLA_COD INT '+
+                             ');';
+
+  qryCreateTable.ExecSQL;
+
 
   qryCreateTable.SQL.Text := 'CREATE TABLE IF NOT EXISTS CUBAGENS ('+
                              'CUB_ID INT NOT NULL, '+
@@ -443,6 +464,7 @@ var
 
 begin
   var lid := NextID('ARVORES');
+  FArvID := lid;
   qryArvoreCad.Close;
   qryArvoreCad.ParamByName('ARV_ID').AsInteger := lid;
   qryArvoreCad.Open;
@@ -475,6 +497,48 @@ begin
     end;
   end;
 end;
+
+procedure TModuleMain.IncluirClassificacao(pArvID, pClaCod: Integer);
+begin
+  var lid := NextID('CLASSIFICACAO');
+  if not qryClassificacaoCad.Locate('CLA_COD',pClaCod,[]) then
+  begin
+    qryClassificacaoCad.Append;
+    qryClassificacaoCad.FieldByName('ARV_ID').AsInteger := pArvID;
+    qryClassificacaoCad.FieldByName('CLA_ID').AsInteger := lid;
+    qryClassificacaoCad.FieldByName('CLA_COD').AsInteger := pClaCod;
+    qryClassificacaoCad.Post;
+  end;
+end;
+
+procedure TModuleMain.ExcluirClassificacao(pArvID, pClaCod: Integer);
+begin
+  if qryClassificacaoCad.Locate('CLA_COD',pClaCod,[]) then
+  begin
+    qryClassificacaoCad.Delete;
+  end;
+end;
+
+procedure TModuleMain.ListarClassificacao(pArvID: Integer);
+begin
+  qryClassificacaoCad.Close;
+  qryClassificacaoCad.ParamByName('ARV_ID').AsInteger := pArvID;
+  qryClassificacaoCad.Open;
+end;
+
+procedure TModuleMain.ClassificarArvore(pClaCod: Integer; pSelecionado: Boolean);
+begin
+  if pSelecionado then
+    IncluirClassificacao(FArvID,pClaCod)
+  else
+    ExcluirClassificacao(FArvID,pClaCod);
+end;
+
+function TModuleMain.ClassificacaoSelecionada(pClaCod: Integer): boolean;
+begin
+  Result := qryClassificacaoCad.Locate('CLA_COD',pClaCod,[]);
+end;
+
 
 procedure TModuleMain.IncluirColeta;
 begin
@@ -529,6 +593,7 @@ begin
   qryArvoreQuebrada.Open;
 end;
 
+
 procedure TModuleMain.ListarCubagem;
 begin
 
@@ -566,6 +631,7 @@ end;
 
 function TModuleMain.EditarArvore(pArvID: Integer): boolean;
 begin
+  FArvID := pArvID;
   result := false;
   if not qryArvoreList.IsEmpty then
   begin
@@ -586,7 +652,7 @@ begin
     qryColetasCad.ParamByName('COL_ID').AsInteger := pID;
     qryColetasCad.Open;
     qryColetasCad.Edit;
-    FColID := pID;
+    FColI := pID;
     result := True;
   end;
 end;
@@ -624,6 +690,8 @@ begin
   if not qryArvoreCad.IsEmpty then
     qryArvoreCad.Delete;
 end;
+
+
 
 procedure TModuleMain.ExcluirColeta(pID: Integer);
 begin
@@ -670,6 +738,7 @@ begin
     qryParcelaCad.Delete;
 end;
 
+{
 procedure TModuleMain.ExportarDados;
 var
   lZipFile: TZipFile;
@@ -710,59 +779,66 @@ begin
     lZipFile.Free;
   end;
 
-end;
+end; }
 
 procedure TModuleMain.FDConnectionBeforeConnect(Sender: TObject);
 begin
   FDConnection.Params.Values['Database'] := TUtils.DirArquivo('ForestInterview.db');
 end;
 
-procedure TModuleMain.GerarCSV(pArquivo: string);
+procedure TModuleMain.GerarCSV(pArquivo: string; pID: Integer);
 var
   lStringList: TStringList;
   lLinha: string;
 begin
   qryExportacao.Close;
+  qryExportacao.ParamByName('COL_ID').AsInteger := pID;
   qryExportacao.Open;
-  lStringList := TStringList.Create;
-  try
-    for var li := 0 to qryExportacao.FieldCount - 1 do
-    begin
-      if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
-        lLinha := lLinha + qryExportacao.Fields[li].DisplayName+';';
-    end;
-    lStringList.Add(lLinha);
 
-
-    while not qryExportacao.Eof do
-    begin
-      lLinha := '';
-      for var li := 0 to qryExportacao.FieldCount - 1 do
-      begin
-        if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
+  if not qryExportacao.IsEmpty then
+  begin
+    lStringList := TStringList.Create;
+    try
+      if TFile.Exists(pArquivo) then
+        lStringList.LoadFromFile(pArquivo)
+      else begin
+        for var li := 0 to qryExportacao.FieldCount - 1 do
         begin
-          if qryExportacao.Fields[li].DataType = ftFMTBcd then
-            lLinha := lLinha + FormatFloat('0.,##',qryExportacao.Fields[li].AsFloat)+';';
-          if qryExportacao.Fields[li].DataType = ftString then
-            lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
-          if qryExportacao.Fields[li].DataType = ftDate then
-            lLinha := lLinha + FormatDateTime('DD/MM/YYYY',qryExportacao.Fields[li].AsDateTime)+';';
-          if qryExportacao.Fields[li].DataType = ftMemo then
-            lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
-          if qryExportacao.Fields[li].DataType = ftInteger then
-            lLinha := lLinha + qryExportacao.Fields[li].AsInteger.ToString+';';
-
+          if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
+            lLinha := lLinha + qryExportacao.Fields[li].DisplayName+';';
         end;
+        lStringList.Add(lLinha);
       end;
-      lStringList.Add(lLinha);
-      qryExportacao.Next;
-    end;
-    lStringList.SaveToFile(pArquivo);
 
-  finally
-    lStringList.Free;
-    //qryArvoreDominate.Close;
-    qryExportacao.Close;
+      while not qryExportacao.Eof do
+      begin
+        lLinha := '';
+        for var li := 0 to qryExportacao.FieldCount - 1 do
+        begin
+          if qryExportacao.Fields[li].FieldName <> qryExportacao.Fields[li].DisplayName then
+          begin
+            if qryExportacao.Fields[li].DataType = ftFMTBcd then
+              lLinha := lLinha + FormatFloat('0.,##',qryExportacao.Fields[li].AsFloat)+';';
+            if qryExportacao.Fields[li].DataType = ftString then
+              lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
+            if qryExportacao.Fields[li].DataType = ftDate then
+              lLinha := lLinha + FormatDateTime('DD/MM/YYYY',qryExportacao.Fields[li].AsDateTime)+';';
+            if qryExportacao.Fields[li].DataType = ftMemo then
+              lLinha := lLinha + qryExportacao.Fields[li].AsString+';';
+            if qryExportacao.Fields[li].DataType = ftInteger then
+              lLinha := lLinha + qryExportacao.Fields[li].AsInteger.ToString+';';
+
+          end;
+        end;
+        lStringList.Add(lLinha);
+        qryExportacao.Next;
+      end;
+      lStringList.SaveToFile(pArquivo);
+
+    finally
+      lStringList.Free;
+      qryExportacao.Close;
+    end;
   end;
 end;
 
