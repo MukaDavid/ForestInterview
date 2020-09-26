@@ -121,7 +121,6 @@ type
     ColorBox12: TColorBox;
     Label10: TLabel;
     Layout16: TLayout;
-    Label16: TLabel;
     cbxFiltro: TComboBox;
     grpBifurcacaoAbaixo: TGroupBox;
     rdgBifurcAbaixoNao: TRadioButton;
@@ -512,6 +511,10 @@ begin
   if (cbxFiltro.ItemIndex = 2) then
     ModuleMain.ListarArvoreQuebrada(ModuleMain.ParID);
 
+  if (cbxFiltro.ItemIndex = 3) then
+    ModuleMain.ListarArvoreMorta(ModuleMain.ParID);
+
+
   lbxParcela.BeginUpdate;
   ModuleMain.qryArvoreList.First;
   while not ModuleMain.qryArvoreList.Eof do
@@ -519,7 +522,8 @@ begin
     lArvID := ModuleMain.qryArvoreList.FieldByName('ARV_ID').AsInteger;
     if (cbxFiltro.ItemIndex = 0) or
       ((cbxFiltro.ItemIndex = 1) and ModuleMain.EhArvoreDominate(lArvID)) or
-      ((cbxFiltro.ItemIndex = 2) and ModuleMain.EhArvoreQuebrada(lArvID)) then
+      ((cbxFiltro.ItemIndex = 2) and ModuleMain.EhArvoreQuebrada(lArvID)) or
+      ((cbxFiltro.ItemIndex = 3) and ModuleMain.EhArvoreMorta(lArvID)) then
     begin
       CriarItemNoListBox;
     end;

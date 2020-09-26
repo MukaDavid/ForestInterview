@@ -120,6 +120,7 @@ type
     qryExportacaoARV_OBS: TWideMemoField;
     qryFazendas: TFDQuery;
     qryClassificacaoCad: TFDQuery;
+    qryArvoreMorta: TFDQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure FDConnectionBeforeConnect(Sender: TObject);
     procedure qryColetasCadNewRecord(DataSet: TDataSet);
@@ -168,8 +169,10 @@ type
     procedure ListarArvore(pParID: Integer);
     procedure ListarArvoreDominate(pParID: Integer);
     procedure ListarArvoreQuebrada(pParID: Integer);
+    procedure ListarArvoreMorta(pParID: Integer);
     function EhArvoreDominate(pArvID: Integer): boolean;
     function EhArvoreQuebrada(pArvID: Integer): boolean;
+    function EhArvoreMorta(pArvID: Integer): boolean;
 
 
     procedure ListarClassificacao(pArvID: Integer);
@@ -593,6 +596,12 @@ begin
   qryArvoreQuebrada.Open;
 end;
 
+procedure TModuleMain.ListarArvoreMorta(pParID: Integer);
+begin
+  qryArvoreMorta.Close;
+  qryArvoreMorta.ParamByName('PAR_ID').AsInteger := pParID;
+  qryArvoreMorta.Open;
+end;
 
 procedure TModuleMain.ListarCubagem;
 begin
@@ -613,7 +622,6 @@ end;
 
 function TModuleMain.MaxParArvore(pParID: Integer): integer;
 begin
-  result := 0;
 
   qryMaxParArvore.Close;
   qryMaxParArvore.ParamByName('PAR_ID').AsInteger := pParID;
@@ -680,6 +688,11 @@ end;
 function TModuleMain.EhArvoreQuebrada(pArvID: Integer): boolean;
 begin
   Result := qryArvoreQuebrada.Locate('ARV_ID',pArvID,[]);
+end;
+
+function TModuleMain.EhArvoreMorta(pArvID: Integer): boolean;
+begin
+  Result := qryArvoreMorta.Locate('ARV_ID',pArvID,[]);
 end;
 
 procedure TModuleMain.ExcluirArvore(pArvID: Integer);
